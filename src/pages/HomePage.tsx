@@ -14,6 +14,8 @@ import {
   Truck,
   CreditCard,
   CheckCircle2,
+  Star,
+  MapPin,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -104,7 +106,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </h1>
 
             <p className="text-xs sm:text-sm text-stone-700 max-w-lg mx-auto font-medium leading-relaxed px-2">
-              Discover handcrafted pieces that blend comfort, style, and durability. Designed to transform every room into a reflection of you.
+              Shop beautiful furniture and discover considered spaces for modern Nigerian homes. Frankman makes it easy to find comfort, quality, and a home you are proud of.
             </p>
 
             {/* Center Pill Action */}
@@ -149,7 +151,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Right Feature Callout Tag */}
             <div className="bg-white/85 backdrop-blur-md border border-white/80 rounded-2xl px-4 py-2.5 text-right hidden sm:block shadow-sm">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#4A5538] block">
-                Handcrafted Finishes
+                Trusted by Nigerian homes
               </span>
               <span className="text-xs text-stone-700 font-semibold block">
                 100% Solid Kiln-Dried Hardwood
@@ -484,7 +486,24 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 7. FREQUENTLY ASKED QUESTIONS (Matching pill accordion layout from screenshot) */}
+
+      {/* 7. CUSTOMER TRUST & TESTIMONIALS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
+          <div>
+            <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-[#4A5538]">Loved locally</span>
+            <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-stone-900 mt-2">Good spaces speak for themselves.</h2>
+          </div>
+          <div className="flex items-center gap-3 text-sm text-stone-700"><span className="text-[#A18A4B] font-bold">★★★★★</span><span className="font-bold">4.9/5</span><span className="text-stone-500">from happy customers</span></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <article className="bg-white border border-stone-200 rounded-[24px] p-6 shadow-xs"><p className="text-sm leading-relaxed text-stone-700">&ldquo;The sofa is even more beautiful in person. Delivery to Umuahia was smooth and the team was so helpful.&rdquo;</p><p className="mt-6 pt-4 border-t border-stone-100 font-bold text-xs text-stone-900">Chiamaka O. · Umuahia, Abia</p></article>
+          <article className="bg-white border border-stone-200 rounded-[24px] p-6 shadow-xs"><p className="text-sm leading-relaxed text-stone-700">&ldquo;Frankman helped me furnish my new apartment without the stress. Quality, honest advice, and great service.&rdquo;</p><p className="mt-6 pt-4 border-t border-stone-100 font-bold text-xs text-stone-900">Emeka N. · Aba, Abia</p></article>
+          <article className="bg-white border border-stone-200 rounded-[24px] p-6 shadow-xs"><p className="text-sm leading-relaxed text-stone-700">&ldquo;I found exactly the dining set I wanted. It feels solid, timeless, and made my home feel complete.&rdquo;</p><p className="mt-6 pt-4 border-t border-stone-100 font-bold text-xs text-stone-900">Amaka I. · Owerri, Imo</p></article>
+        </div>
+      </section>
+
+      {/* 8. FREQUENTLY ASKED QUESTIONS (Matching pill accordion layout from screenshot) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-10">
           <h2 className="font-heading font-extrabold text-2xl sm:text-3xl text-stone-900">
@@ -543,7 +562,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 8. FOOTER / LET'S WORK TOGETHER (Matching olive container footer from screenshot) */}
+      {/* 9. FOOTER / LET&apos;S WORK TOGETHER (Matching olive container footer from screenshot) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-[28px] sm:rounded-[40px] bg-[#3B472C] text-[#EDE8DE] p-8 sm:p-14 shadow-xl space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
