@@ -632,6 +632,10 @@ class FrankmanDataStore {
     discountCode?: string | null;
     items: Array<{ productId: string; variationId?: string | null; quantity: number }>;
     idempotencyKey?: string;
+    paymentMethod?: string;
+    paymentStatus?: PaymentStatus;
+    paystackReference?: string | null;
+    paymentChannel?: string | null;
   }): Promise<{
     success: boolean;
     order?: Order;
@@ -800,9 +804,9 @@ class FrankmanDataStore {
       totalAmountKobo: totals.totalKobo,
       discountCodeId: appliedDiscountCode?.id || null,
       discountCodeApplied: appliedDiscountCode?.code || null,
-      paymentMethod: 'PAYSTACK_PENDING',
-      paymentStatus: 'PENDING',
-      orderStatus: 'PENDING',
+      paymentMethod: data.paymentMethod || (data.paymentStatus === 'PAID' ? 'PAYSTACK_ONLINE' : 'PAYSTACK_PENDING'),
+      paymentStatus: data.paymentStatus || 'PENDING',
+      orderStatus: data.paymentStatus === 'PAID' ? 'CONFIRMED' : 'PENDING',
       items: preparedOrderItems,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -818,6 +822,16 @@ class FrankmanDataStore {
       success: true,
       order: newOrder,
     };
+  }
+
+  public markOrderAsPaid(orderNumber: string, reference: string, channel: string = 'CARD'): Order | null {
+    const order = this.orders.get(orderNumber);
+    if (!order) return null;
+    order.paymentStatus = 'PAID';
+    order.orderStatus = 'CONFIRMED';
+    order.paymentMethod = `PAYSTACK (${channel.toUpperCase()})`;
+    order.updatedAt = new Date().toISOString();
+    return { ...order };
   }
 
   public getOrderByReference(reference: string): Order | null {

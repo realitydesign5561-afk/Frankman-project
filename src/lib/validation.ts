@@ -21,6 +21,10 @@ export const CheckoutSchema = z.object({
   discountCode: z.string().trim().toUpperCase().optional().nullable(),
   items: z.array(CheckoutItemSchema).min(1, 'Your cart is empty. Please add items to checkout.'),
   idempotencyKey: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  paymentStatus: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']).optional(),
+  paystackReference: z.string().optional().nullable(),
+  paymentChannel: z.string().optional().nullable(),
 });
 
 export type CheckoutInput = z.infer<typeof CheckoutSchema>;

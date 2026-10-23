@@ -288,22 +288,22 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
           {/* Quantity and Actions */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border border-stone-300 rounded-lg bg-stone-50">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center border border-stone-300 rounded-full bg-stone-50 min-h-[46px]">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2.5 text-stone-600 hover:text-stone-900 transition-colors"
+                  className="px-3.5 py-2 text-stone-600 hover:text-stone-900 transition-colors font-bold text-sm"
                   aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="px-3 text-xs font-semibold text-stone-900 tabular-nums">
+                <span className="px-3 text-xs font-bold text-stone-900 tabular-nums">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
                   disabled={quantity >= availableStock}
-                  className="px-3 py-2.5 text-stone-600 hover:text-stone-900 disabled:opacity-30 transition-colors"
+                  className="px-3.5 py-2 text-stone-600 hover:text-stone-900 disabled:opacity-30 transition-colors font-bold text-sm"
                   aria-label="Increase quantity"
                 >
                   +
@@ -314,12 +314,24 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="flex-1 py-3 px-6 bg-[#1C1917] hover:bg-stone-800 disabled:bg-stone-300 text-white text-xs font-semibold tracking-wide rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all"
+                className="flex-1 py-3 px-5 bg-[#4A5538] hover:bg-[#3D472D] disabled:bg-stone-300 text-white text-xs font-bold tracking-wide rounded-full flex items-center justify-center gap-2 shadow-xs transition-all min-h-[46px]"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>{isOutOfStock ? 'Currently Unavailable' : 'Add to Shopping Bag'}</span>
               </button>
             </div>
+
+            {/* Instant Checkout with Paystack CTA */}
+            <button
+              onClick={() => {
+                handleAddToCart();
+                onNavigate('/checkout');
+              }}
+              disabled={isOutOfStock}
+              className="w-full py-3 px-5 border-2 border-[#4A5538] text-[#4A5538] hover:bg-[#4A5538] hover:text-white disabled:border-stone-200 disabled:text-stone-400 rounded-full text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 min-h-[46px]"
+            >
+              <span>Instant Paystack Checkout</span>
+            </button>
 
             {/* Quick WhatsApp Inquiry */}
             <WhatsAppButton
@@ -327,17 +339,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               message={whatsappInquiryMessage}
               label="Inquire via WhatsApp (Showroom Desk)"
               variant="outline"
-              className="w-full py-2.5"
+              className="w-full py-2.5 rounded-full min-h-[44px]"
             />
           </div>
 
           {/* Added to Bag Feedback */}
           {addedToast && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs flex items-center justify-between animate-in fade-in">
+            <div className="p-3 bg-[#EBF3E8] border border-[#CDE1C7] text-[#334626] rounded-2xl text-xs flex items-center justify-between animate-in fade-in">
               <span>Added to your bag!</span>
               <button
                 onClick={() => setDrawerOpen(true)}
-                className="font-bold underline text-emerald-900"
+                className="font-bold underline text-[#27371D]"
               >
                 Open Bag &rarr;
               </button>

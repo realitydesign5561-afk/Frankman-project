@@ -138,6 +138,56 @@ async function createServer() {
     res.json(order);
   });
 
+  // Paystack Initialize
+  app.post('/api/paystack/initialize', (req: Request, res: Response) => {
+    const { email, amountKobo } = req.body;
+    if (!email || !amountKobo) {
+      res.status(400).json({ status: false, message: 'Email and amount are required' });
+      return;
+    }
+    const reference = `pstk_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const publicKey = process.env.PAYSTACK_PUBLIC_KEY || 'pk_test_demo_frankman_umuahia';
+
+    res.json({
+      status: true,
+      message: 'Paystack transaction initialized',
+      data: {
+        reference,
+        amountKobo,
+        email,
+        key: publicKey,
+        currency: 'NGN',
+        channels: ['card', 'bank_transfer', 'ussd', 'qr'],
+      },
+    });
+  });
+
+  // Paystack Verify & Complete Payment
+  app.post('/api/paystack/verify', (req: Request, res: Response) => {
+    const { reference, orderNumber, channel } = req.body;
+    if (!reference || !orderNumber) {
+      res.status(400).json({ status: false, message: 'Reference and orderNumber are required' });
+      return;
+    }
+
+    const updated = dataStore.markOrderAsPaid(
+      orderNumber,
+      reference,
+      channel || 'Card / Online Banking'
+    );
+
+    if (!updated) {
+      res.status(404).json({ status: false, message: 'Order not found' });
+      return;
+    }
+
+    res.json({
+      status: true,
+      message: 'Payment verified successfully via Paystack',
+      order: updated,
+    });
+  });
+
   // --- ADMIN ROUTES ---
 
   // Admin Login

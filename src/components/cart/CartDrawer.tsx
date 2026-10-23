@@ -178,18 +178,18 @@ export const CartDrawer: React.FC<{ onNavigate?: (path: string) => void }> = ({ 
           {items.length > 0 && (
             <div className="p-6 border-t border-stone-200 bg-[#FAF9F5] space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-stone-600">Subtotal</span>
-                <span className="font-semibold text-stone-900 text-base tabular-nums">
+                <span className="text-stone-600 font-medium">Subtotal</span>
+                <span className="font-extrabold text-stone-900 text-lg tabular-nums">
                   {formatNaira(subtotalKobo)}
                 </span>
               </div>
               <p className="text-[11px] text-stone-500">
-                Delivery and discount codes calculated during checkout.
+                Paystack cards, transfer, and discounts calculated at checkout.
               </p>
 
               <button
                 onClick={() => handleLinkClick('/checkout')}
-                className="w-full py-3 bg-[#1C1917] hover:bg-stone-800 text-white rounded-lg text-sm font-semibold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-colors"
+                className="w-full py-3.5 bg-[#4A5538] hover:bg-[#3D472D] text-white rounded-full text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-colors min-h-[46px]"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4" />
@@ -197,7 +197,7 @@ export const CartDrawer: React.FC<{ onNavigate?: (path: string) => void }> = ({ 
 
               <button
                 onClick={() => handleLinkClick('/cart')}
-                className="w-full py-2.5 border border-stone-300 hover:border-stone-400 bg-white text-stone-800 rounded-lg text-xs font-medium transition-colors"
+                className="w-full py-2.5 border border-stone-300 hover:border-stone-400 bg-white text-stone-800 rounded-full text-xs font-bold transition-colors min-h-[42px]"
               >
                 View Full Bag Details
               </button>

@@ -288,7 +288,7 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
                 </span>
               </div>
 
-              <div className="pt-3 border-t border-stone-200 flex justify-between text-base font-bold text-stone-950">
+              <div className="pt-3 border-t border-stone-200 flex justify-between text-base font-extrabold text-stone-950">
                 <span>Total Amount</span>
                 <span className="tabular-nums">{formatNaira(totals.totalKobo)}</span>
               </div>
@@ -296,9 +296,9 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
 
             <button
               onClick={() => onNavigate('/checkout')}
-              className="w-full py-3.5 bg-[#1C1917] hover:bg-stone-800 text-white rounded-lg text-xs font-semibold tracking-wide flex items-center justify-center gap-2 shadow-sm transition-all"
+              className="w-full py-4 bg-[#4A5538] hover:bg-[#3D472D] text-white rounded-full text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all min-h-[48px]"
             >
-              <span>Proceed to Checkout</span>
+              <span>Proceed to Paystack Checkout</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

@@ -2,35 +2,56 @@
 
 @layer base {
   :root {
-    --font-serif: "Playfair Display", Georgia, serif;
+    --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    --font-editorial: "Cinzel", "Playfair Display", Georgia, serif;
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1c1917;
-    background-color: #faf9f5;
+    color: #1f241d;
+    background-color: #f8f7f4;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, .font-display, .font-serif {
-    font-family: var(--font-serif);
+  .font-editorial {
+    font-family: var(--font-editorial);
+  }
+
+  .font-heading {
+    font-family: var(--font-heading);
   }
 }
 
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f5f3ef;
+  background: #f1efe9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
-  border-radius: 4px;
+  background: #c8c3b7;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a29e;
+  background: #a39e92;
+}
+
+/* Animation utilities */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

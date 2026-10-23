@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Product, Category } from '../types';
 import { ProductCard } from '../components/products/ProductCard';
-import { Search, SlidersHorizontal, X, RotateCcw } from 'lucide-react';
+import { Search, X, RotateCcw } from 'lucide-react';
 import { formatNaira } from '../lib/pricing';
 
 interface ShopPageProps {
@@ -11,35 +11,21 @@ interface ShopPageProps {
 
 export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filter state
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-asc' | 'price-desc'>('featured');
-  const [maxPriceNaira, setMaxPriceNaira] = useState<number>(1000000); // ₦1,000,000 max slider
+  const [maxPriceNaira, setMaxPriceNaira] = useState<number>(1000000);
   const [inStockOnly, setInStockOnly] = useState(false);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Sync with initialCategory prop
   useEffect(() => {
     if (initialCategory) {
       setSelectedCategory(initialCategory);
     }
   }, [initialCategory]);
 
-  // Fetch categories once
-  useEffect(() => {
-    fetch('/api/categories')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setCategories(data);
-      })
-      .catch((err) => console.error(err));
-  }, []);
-
-  // Fetch products based on active filters
   useEffect(() => {
     setLoading(true);
     const params = new URLSearchParams();
@@ -86,14 +72,14 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
     inStockOnly;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* Title & Collection Banner */}
       <div className="border-b border-stone-200 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <span className="text-xs uppercase tracking-widest font-semibold text-amber-800">
-            Frankman Catalog
+          <span className="text-[11px] uppercase tracking-widest font-bold text-[#4A5538]">
+            Frankman Showroom Catalog
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900 mt-1">
+          <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-stone-900 mt-1">
             {selectedCategory === 'furniture'
               ? 'Furniture Collection'
               : selectedCategory === 'electronics'
@@ -101,21 +87,21 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               : 'All Showroom Products'}
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Carefully curated items available for inspection and direct delivery in Umuahia, Abia State.
+            Handcrafted pieces and home electronics available in Umuahia, Abia State.
           </p>
         </div>
 
-        {/* Category Tabs (Segmented Button Controls) */}
-        <div className="flex items-center gap-1.5 p-1 bg-stone-200/60 rounded-lg shrink-0">
+        {/* Category Pill Tabs (Exact screenshot styling) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             onClick={() => {
               setSelectedCategory('all');
               onNavigate('/shop');
             }}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
               selectedCategory === 'all'
-                ? 'bg-white text-stone-900 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-[#4A5538] text-white shadow-xs'
+                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
             }`}
           >
             All Products
@@ -125,10 +111,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               setSelectedCategory('furniture');
               onNavigate('/shop/furniture');
             }}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
               selectedCategory === 'furniture'
-                ? 'bg-white text-stone-900 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-[#4A5538] text-white shadow-xs'
+                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
             }`}
           >
             Furniture
@@ -138,10 +124,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               setSelectedCategory('electronics');
               onNavigate('/shop/electronics');
             }}
-            className={`px-3.5 py-1.5 text-xs font-medium rounded-md transition-all ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
               selectedCategory === 'electronics'
-                ? 'bg-white text-stone-900 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
+                ? 'bg-[#4A5538] text-white shadow-xs'
+                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
             }`}
           >
             Electronics
@@ -150,49 +136,48 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, spec, or SKU..."
-            className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg pl-9 pr-3 py-2 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-800"
+            placeholder="Search by name, finish, or specs..."
+            className="w-full text-xs sm:text-sm bg-[#FAF9F5] border border-stone-200 rounded-full pl-9 pr-3.5 py-2.5 text-stone-900 focus:bg-white focus:outline-none focus:border-[#4A5538]"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Desktop Controls: Sort & In-Stock */}
-        <div className="w-full md:w-auto flex items-center justify-between md:justify-end gap-3">
-          {/* In Stock toggle */}
-          <label className="flex items-center gap-2 text-xs font-medium text-stone-700 cursor-pointer select-none">
+        {/* Controls: Sort & In-Stock */}
+        <div className="w-full md:w-auto flex flex-wrap items-center justify-between md:justify-end gap-3 text-xs">
+          <label className="flex items-center gap-2 font-semibold text-stone-700 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded border-stone-300 text-stone-900 focus:ring-stone-900 h-4 w-4"
+              className="rounded-md border-stone-300 text-[#4A5538] focus:ring-[#4A5538] h-4 w-4"
             />
             <span>In Stock Only</span>
           </label>
 
-          <span className="text-stone-300">|</span>
+          <span className="text-stone-300 hidden sm:inline">|</span>
 
           {/* Sort Selector */}
-          <div className="flex items-center gap-1.5 text-xs text-stone-600">
-            <span className="shrink-0 font-medium">Sort:</span>
+          <div className="flex items-center gap-1.5 text-stone-600">
+            <span className="font-semibold">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-xs bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-stone-900 focus:outline-none focus:border-stone-800 font-medium"
+              className="bg-[#FAF9F5] border border-stone-200 rounded-full px-3 py-1.5 text-stone-900 focus:outline-none focus:border-[#4A5538] font-medium"
             >
               <option value="featured">Featured First</option>
               <option value="newest">Newest Arrivals</option>
@@ -201,12 +186,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
             </select>
           </div>
 
-          {/* Reset Filters */}
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="text-xs text-amber-800 hover:text-amber-950 font-medium flex items-center gap-1 transition-colors px-2 py-1"
-              title="Reset all filters"
+              className="text-[#4A5538] hover:text-[#38432A] font-bold flex items-center gap-1 transition-colors px-2 py-1"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
@@ -215,15 +198,9 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
         </div>
       </div>
 
-      {/* Active Results Summary */}
-      <div className="flex items-center justify-between text-xs text-stone-500">
-        <span>
-          Showing <span className="font-semibold text-stone-900">{products.length}</span>{' '}
-          {products.length === 1 ? 'product' : 'products'}
-        </span>
-        {maxPriceNaira < 1000000 && (
-          <span>Under {formatNaira(maxPriceNaira * 100)}</span>
-        )}
+      {/* Results Count */}
+      <div className="text-xs text-stone-500 font-medium">
+        Showing <span className="font-bold text-stone-900">{products.length}</span> pieces
       </div>
 
       {/* Product Grid */}
@@ -232,23 +209,23 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-96 rounded-xl bg-stone-100 animate-pulse border border-stone-200"
+              className="h-96 rounded-[28px] bg-stone-100 animate-pulse border border-stone-200"
             />
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-stone-200 p-8">
-          <h3 className="font-serif text-lg font-bold text-stone-900 mb-2">
+        <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
+          <h3 className="font-heading text-lg font-bold text-stone-900">
             No products match your current filters
           </h3>
-          <p className="text-xs text-stone-500 max-w-md mx-auto mb-6">
-            Try clearing search keywords, adjusting your price limit, or viewing all products.
+          <p className="text-xs text-stone-500 max-w-md mx-auto">
+            Try adjusting keywords or selecting another collection.
           </p>
           <button
             onClick={resetFilters}
-            className="px-5 py-2.5 bg-[#1C1917] text-white text-xs font-semibold rounded-lg hover:bg-stone-800 transition-colors"
+            className="px-5 py-2.5 bg-[#4A5538] text-white text-xs font-bold rounded-full hover:bg-[#3D472D] transition-colors"
           >
-            Clear All Filters
+            Clear Filters
           </button>
         </div>
       ) : (
