@@ -30,51 +30,75 @@ export const LiveChatWidget: React.FC<{ whatsappNumber?: string }> = ({
     }
   }, [messages, isOpen]);
 
+  const createMessageId = () =>
+    `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  const getSupportReply = (question: string) => {
+    const lower = question.toLowerCase().replace(/[?!.,]/g, ' ');
+    const has = (...terms: string[]) => terms.some((term) => lower.includes(term));
+
+    if (has('hello', 'hi ', 'hey', 'good morning', 'good afternoon', 'good evening')) {
+      return 'Hello and welcome to Frankman. I can help with products, prices, stock, delivery, payments, discounts, orders, returns, warranty, our showroom, and property enquiries. What would you like to know?';
+    }
+    if (has('deliver', 'shipping', 'delivery', 'ship')) {
+      return 'We deliver within Umuahia and across Abia State. Standard local delivery is ₦15,000, while orders above ₦300,000 qualify for free local delivery. Please contact us for a quote to another Nigerian city.';
+    }
+    if (has('discount', 'promo', 'coupon', 'offer', 'sale')) {
+      return 'Use code WELCOME10 at checkout for 10% off your purchase. If it does not apply to an item, our sales desk can confirm current promotions for you.';
+    }
+    if (has('payment', 'paystack', 'pay online', 'transfer', 'card')) {
+      return 'You can place your order online and choose a secure payment option at checkout. We accept card and transfer payments, and our sales desk will confirm your order before fulfillment.';
+    }
+    if (has('location', 'address', 'where are', 'store', 'showroom', 'open', 'hours', 'close')) {
+      return 'Our showroom is in Umuahia, Abia State, Nigeria. We are open Monday to Saturday, 8:30 AM to 6:30 PM. Use the WhatsApp button below for the exact location pin.';
+    }
+    if (has('price', 'cost', 'how much', '₦', 'naira')) {
+      return 'Current prices are shown on each product page in Nigerian naira. Add an item to your cart or send us its name on WhatsApp and we will confirm availability and the latest price.';
+    }
+    if (has('available', 'in stock', 'stock', 'sold out')) {
+      return 'Availability is shown on each product page and can change quickly. If an item is out of stock, message us on WhatsApp and we can suggest a similar option or confirm the next restock.';
+    }
+    if (has('product', 'furniture', 'sofa', 'bed', 'dining', 'table', 'chair', 'electronics', 'tv', 'fridge', 'appliance')) {
+      return 'We offer furniture and home electronics for living rooms, bedrooms, dining spaces, offices, and more. Browse the shop by category, then open a product to see its details, variants, price, and stock.';
+    }
+    if (has('order', 'track', 'tracking', 'order number', 'confirmation')) {
+      return 'After checkout, you will receive an order reference on the confirmation page. Keep it handy and contact our team on WhatsApp with the reference so we can help with status updates.';
+    }
+    if (has('return', 'refund', 'exchange', 'cancel')) {
+      return 'For returns, exchanges, refunds, or order changes, please contact our sales desk as soon as possible with your order reference. We will review the item condition and order status and guide you through the next step.';
+    }
+    if (has('warranty', 'guarantee', 'damaged', 'faulty', 'repair')) {
+      return 'Warranty coverage depends on the product and supplier. If an item arrives damaged or develops a fault, contact us with your order reference and photos so the team can assist promptly.';
+    }
+    if (has('property', 'house', 'home', 'apartment', 'land', 'real estate')) {
+      return 'We can help with furniture and home styling for Nigerian spaces. For available property or bespoke interior enquiries, send your preferred location, budget, and requirements to our team on WhatsApp.';
+    }
+    if (has('contact', 'phone', 'whatsapp', 'agent', 'human', 'help')) {
+      return 'Our team is ready to help. Tap WhatsApp below for a human agent, and include the product name, your location, and any order reference so we can respond faster.';
+    }
+
+    return 'I can help with products, prices, stock, delivery, payments, discounts, orders, returns, warranty, our Umuahia showroom, and property or interior enquiries. Tell me what you need, or tap WhatsApp to speak with a human agent.';
+  };
+
   const handleSend = (userMessage?: string) => {
-    const textToSend = userMessage || inputText;
-    if (!textToSend.trim()) return;
+    const textToSend = (userMessage || inputText).trim();
+    if (!textToSend) return;
 
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      sender: 'user',
-      text: textToSend.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    setMessages((prev) => [...prev, newMsg]);
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setMessages((prev) => [...prev, { id: createMessageId(), sender: 'user', text: textToSend, timestamp: now }]);
     if (!userMessage) setInputText('');
 
-    // Automated smart customer response
-    setTimeout(() => {
-      let reply = 'Thank you for your enquiry. Our showroom team in Umuahia is at your service. For instant personalized quotes or showroom visits, you can also reach us directly via WhatsApp.';
-      const lower = textToSend.toLowerCase();
-
-      if (lower.includes('deliver') || lower.includes('shipping') || lower.includes('umuahia')) {
-        reply = 'We deliver safely within Umuahia and across Abia State. Standard delivery is ₦15,000, and orders above ₦300,000 enjoy free local delivery!';
-      } else if (lower.includes('discount') || lower.includes('promo') || lower.includes('coupon')) {
-        reply = 'You can use code WELCOME10 at checkout to receive 10% off your purchase!';
-      } else if (lower.includes('payment') || lower.includes('paystack')) {
-        reply = 'Orders can be submitted online with PENDING status. Our sales desk will verify your order items and facilitate secure payment upon order processing.';
-      } else if (lower.includes('location') || lower.includes('address') || lower.includes('store')) {
-        reply = 'Frankman Furniture & Electronics is proudly located in Umuahia, Abia State. Open Monday through Saturday, 8:30 AM to 6:30 PM.';
-      }
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `msg-${Date.now() + 1}`,
-          sender: 'bot',
-          text: reply,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        },
-      ]);
-    }, 600);
+    window.setTimeout(() => {
+      setMessages((prev) => [...prev, { id: createMessageId(), sender: 'bot', text: getSupportReply(textToSend), timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    }, 450);
   };
 
   const quickActions = [
-    { label: 'Delivery in Umuahia', query: 'What are your delivery options in Umuahia?' },
-    { label: 'Available Discounts', query: 'Do you have any discount codes active?' },
-    { label: 'Store Location & Hours', query: 'Where is your showroom located in Umuahia?' },
+    { label: 'Delivery', query: 'What are your delivery options?' },
+    { label: 'Prices & stock', query: 'How can I check prices and availability?' },
+    { label: 'Payments', query: 'What payment options do you accept?' },
+    { label: 'Returns', query: 'What is your return or exchange process?' },
+    { label: 'Location & hours', query: 'Where is your showroom and when are you open?' },
   ];
 
   return (
