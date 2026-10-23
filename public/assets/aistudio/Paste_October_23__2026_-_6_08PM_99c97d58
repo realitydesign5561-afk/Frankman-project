@@ -1,0 +1,1776 @@
+PROJECT: FRANKMAN FURNITURE & ELECTRONICS
+
+Production-Ready Full-Stack E-Commerce Website, Store Management System, and Admin Dashboard
+
+Act as a senior full-stack software engineer, UI/UX designer, e-commerce architect, database engineer, SEO specialist, and security-focused technical lead.
+
+Your task is to design and build a complete, production-ready e-commerce website and business management system for Frankman Furniture & Electronics, a premium furniture and electronics retail business serving customers in Umuahia, Abia State, Nigeria.
+
+Do not build just a landing page, static mockup, or frontend demonstration.
+
+Build a functional full-stack application with a responsive storefront, persistent product catalog, product variations, shopping cart, checkout, order management, discount codes, inventory management, customer support interface, and secure administrative dashboard.
+
+Every major feature must be implemented and connected to the appropriate backend services and database.
+
+The finished system must be suitable for deployment on Vercel.
+
+---
+
+1. BRAND IDENTITY AND BUSINESS INFORMATION
+
+Business name:
+Frankman Furniture & Electronics
+
+Primary location:
+Umuahia, Abia State, Nigeria.
+
+Target market:
+Customers shopping for furniture, home interiors, televisions, electronics, and related household products in Umuahia and surrounding areas.
+
+Brand positioning:
+Premium, reliable, stylish, customer-focused, and locally accessible.
+
+Brand slogan:
+"Where style truly meets comfort."
+
+Primary homepage headline:
+"Premium Furniture & Electronics in Umuahia"
+
+Facebook business reference:
+https://www.facebook.com/profile.php?id=61569349703465
+
+Use this Facebook profile as a reference when researching the brand's public identity, product presentation, and available business information.
+
+Do not invent verified customer reviews, company history, certifications, physical addresses, phone numbers, email addresses, opening hours, or delivery promises.
+
+If the Facebook page or another public source cannot be accessed, use clearly identified placeholders that an administrator can update.
+
+Where publicly available information about the business conflicts, prioritize information confirmed directly by the business owner.
+
+Visual Brand Direction
+
+Create a polished, premium retail identity that combines furniture showroom elegance with modern electronics retail.
+
+Use:
+
+- Warm ivory and off-white backgrounds.
+- Deep charcoal typography.
+- Rich walnut and natural wood-inspired tones.
+- Restrained gold or bronze accents.
+- Generous whitespace.
+- Elegant serif headings paired with a clean sans-serif interface font.
+- Large, high-quality product photography.
+- Sophisticated cards, subtle shadows, and tasteful animations.
+- Clear visual hierarchy and excellent mobile usability.
+
+Avoid:
+
+- Generic template aesthetics.
+- Excessive gradients.
+- Oversized rounded cards everywhere.
+- Cartoon-style icons.
+- Distracting animations.
+- Cluttered product layouts.
+- Fake testimonials and invented trust badges.
+
+The result should look like a premium furniture showroom combined with a modern electronics retailer.
+
+Use consistent design tokens and reusable components throughout the application.
+
+---
+
+2. REQUIRED TECHNOLOGY STACK
+
+Use the following technologies:
+
+Frontend:
+
+- Next.js 14 or a compatible stable App Router implementation.
+- React.
+- TypeScript with strict type checking.
+- Tailwind CSS.
+- shadcn/ui.
+- Lucide React icons.
+
+Backend:
+
+- Next.js Route Handlers.
+- Server Components by default.
+- Server Actions where appropriate.
+- Zod for server-side input validation.
+
+Database:
+
+- PostgreSQL hosted on Neon.
+- Prisma ORM.
+- Prisma migrations or the documented Prisma schema-push workflow.
+
+Client state:
+
+- Zustand for shopping cart state and lightweight interface state.
+- Persist the cart locally so it survives page refreshes.
+- Revalidate prices, stock, and discount codes on the server.
+
+Authentication:
+
+- A secure authentication solution compatible with Next.js.
+- Protected administrative routes.
+- Role-based access control.
+- Secure password hashing if implementing credentials authentication.
+- HTTP-only, secure session cookies where appropriate.
+
+Deployment:
+
+- Vercel.
+- Neon PostgreSQL.
+- Environment variables for all secrets and service configuration.
+
+Testing:
+
+- Vitest or an equivalent unit-testing framework.
+- Playwright for end-to-end tests.
+
+Use compatible package versions and commit the dependency lockfile.
+
+Do not use deprecated Next.js routing conventions.
+
+Do not expose database credentials, administrative secrets, payment secrets, or other private environment variables to the browser.
+
+---
+
+3. WEBSITE ARCHITECTURE
+
+Build the following public-facing routes.
+
+Homepage
+
+Route:
+/
+
+The homepage must be a complete premium retail landing page.
+
+A. Announcement Bar
+
+Include a configurable announcement area for messages such as:
+
+"Discover stylish furniture and quality electronics in Umuahia."
+
+Allow an administrator to update or disable the announcement.
+
+Do not display fake discounts or unsupported delivery promises.
+
+B. Header and Navigation
+
+Create a responsive header containing:
+
+- Frankman Furniture & Electronics logo or wordmark.
+- Home.
+- Shop All.
+- Furniture.
+- Electronics.
+- About Us.
+- Contact.
+- Search.
+- Account.
+- Shopping cart with a live item count.
+
+Include a mobile navigation drawer.
+
+The cart count must update immediately when products are added, removed, or changed.
+
+C. Hero Section
+
+Use the exact headline:
+
+"Premium Furniture & Electronics in Umuahia"
+
+Use the slogan:
+
+"Where style truly meets comfort."
+
+Supporting copy:
+
+"Discover stylish furniture and quality electronics selected to make your home more comfortable, functional, and beautiful."
+
+Primary call-to-action:
+"Shop Furniture"
+
+Secondary call-to-action:
+"Shop Electronics"
+
+Link the buttons to the corresponding product collections.
+
+Use a premium hero composition featuring elegant living-room furniture and modern home electronics.
+
+Choose licensed, locally stored, or otherwise appropriately usable images. Avoid fragile external image URLs where possible.
+
+Make the hero responsive, visually striking, and accessible.
+
+D. Featured Categories
+
+Create attractive category cards for:
+
+1. Living Room Furniture.
+2. Bedroom Furniture.
+3. Dining Furniture.
+4. Sofas and Armchairs.
+5. Television and Entertainment.
+6. Home Electronics.
+
+The primary database categories must remain:
+
+- Furniture.
+- Electronics.
+
+Additional collections can be implemented using category relationships, subcategories, or product attributes.
+
+E. Featured Products
+
+Display products retrieved from the database.
+
+Each product card should include:
+
+- Product image.
+- Product name.
+- Current price in Nigerian naira.
+- Optional original price where a real sale price exists.
+- Availability status.
+- Variation indicator when applicable.
+- Quick-view or product-detail action.
+- Add-to-cart button.
+
+Use real database records rather than hardcoded homepage arrays.
+
+Support loading skeletons, empty states, and graceful image failures.
+
+F. Promotional Sections
+
+Create configurable promotional sections for:
+
+- Stylish living room upgrades.
+- Bedroom essentials.
+- Dining room collections.
+- Home entertainment.
+- Featured deals.
+
+Do not invent discounts. Display promotional pricing only when configured in the database.
+
+G. Why Shop With Frankman?
+
+Use concise benefit statements that can be edited by an administrator.
+
+Suggested positioning:
+
+- Furniture and electronics in one destination.
+- Convenient product browsing.
+- Clear product pricing.
+- Personalized product assistance.
+- Convenient order placement.
+
+Do not claim warranties, manufacturer authorization, financing, or delivery coverage unless those details have been confirmed.
+
+H. Customer Support CTA
+
+Include a prominent section encouraging customers to contact the store for product questions and order assistance.
+
+Provide configurable WhatsApp and telephone contact actions.
+
+I. Footer
+
+Include:
+
+Frankman Furniture & Electronics.
+
+Umuahia, Abia State, Nigeria.
+
+Configurable phone number.
+
+Configurable email address.
+
+Configurable business hours.
+
+Quick links.
+
+Furniture and electronics categories.
+
+Shipping and delivery policy.
+
+Returns and refunds policy.
+
+Privacy policy.
+
+Terms and conditions.
+
+Facebook business profile:
+https://www.facebook.com/profile.php?id=61569349703465
+
+Include local SEO copy naturally, without keyword stuffing.
+
+---
+
+4. PRODUCT CATALOG AND SHOPPING EXPERIENCE
+
+Shop All
+
+Route:
+/shop
+
+Build a functional product catalog.
+
+Features:
+
+- Furniture and electronics category filters.
+- Search by product name and description.
+- Minimum and maximum price filters.
+- Sorting by newest.
+- Sorting by price, low to high.
+- Sorting by price, high to low.
+- Sorting by popularity where actual purchase data is available.
+- Availability filtering.
+- Pagination or efficient incremental loading.
+- Responsive grid and list layouts.
+- URL-based filters so users can share filtered results.
+
+Every filter must affect the actual product query.
+
+Validate query parameters and implement pagination on the server.
+
+Furniture Collection
+
+Route:
+/shop/furniture
+
+Show furniture products only.
+
+Support relevant attributes such as:
+
+- Material.
+- Color.
+- Room type.
+- Style.
+- Availability.
+- Price range.
+
+Electronics Collection
+
+Route:
+/shop/electronics
+
+Show electronics products only.
+
+Support relevant attributes such as:
+
+- Brand.
+- Screen size where applicable.
+- Product type.
+- Availability.
+- Price range.
+
+Do not display irrelevant filters for a product category.
+
+Product Search
+
+Provide a usable search interface with:
+
+- Search suggestions.
+- Matching product images.
+- Product names.
+- Prices.
+- Direct links to product details.
+
+Search must query the database and use appropriate input limits.
+
+---
+
+5. ADVANCED PRODUCT DETAIL PAGES
+
+Route:
+/product/[slug]
+
+Every product must have its own SEO-friendly URL.
+
+The product page must support multiple product images, detailed descriptions, product specifications, availability, variations, quantity selection, and cart actions.
+
+Product Gallery
+
+Include:
+
+- Main image.
+- Thumbnail gallery.
+- Image switching.
+- Responsive product imagery.
+- Accessible image controls.
+
+If suitable images are available, support zoom or an enlarged image view.
+
+Product Information
+
+Display:
+
+- Product name.
+- Product category.
+- Product description.
+- Current price.
+- Selected variation.
+- Stock availability.
+- Quantity selector.
+- SKU when available.
+- Relevant specifications.
+- Add-to-cart button.
+- Contact-us action.
+
+Product Variations
+
+Support variation types such as color, size, capacity, material, and other product-specific attributes.
+
+Examples:
+
+Furniture:
+
+- Black.
+- Mahogany.
+- Brown.
+- Grey.
+
+Electronics:
+
+- 43-inch TV.
+- 55-inch TV.
+- 65-inch TV.
+
+Each variation must support:
+
+- Its own SKU.
+- Variation attributes.
+- Stock count.
+- Optional additional price.
+- Optional variation-specific image.
+- Active or inactive status.
+
+The product price must update immediately when the selected variation changes.
+
+Calculate the displayed price as:
+
+Product base price + selected variation's additional price.
+
+Represent all monetary values as integer kobo in the database and perform calculations using integer arithmetic.
+
+Format displayed amounts as Nigerian naira.
+
+Example:
+
+Base price: ₦450,000.
+
+Selected variation additional price: ₦50,000.
+
+Displayed price: ₦500,000.
+
+Do not allow customers to purchase unavailable variations.
+
+The server must validate the selected variation and current price before accepting an order.
+
+---
+
+6. SHOPPING CART
+
+Route:
+/cart
+
+Build a complete shopping cart using Zustand with persistent browser storage.
+
+The cart must support:
+
+- Adding products.
+- Adding specific product variations.
+- Increasing quantity.
+- Decreasing quantity.
+- Removing individual items.
+- Clearing the cart.
+- Updating subtotal immediately.
+- Showing the selected variation.
+- Displaying available stock.
+- Linking back to product pages.
+- Continuing to checkout.
+
+Use a stable cart-item identifier that distinguishes different variations of the same product.
+
+Persist only the information needed to reconstruct the cart.
+
+Never trust client-side prices, discounts, totals, stock counts, or product availability.
+
+Recalculate all financial values on the server.
+
+Provide clear empty-cart and out-of-stock states.
+
+---
+
+7. DISCOUNT CODE SYSTEM
+
+Build a functional discount-code system.
+
+Create a database-backed discount code field and validation endpoint.
+
+Example seed code:
+
+WELCOME10
+
+Discount:
+10%.
+
+This code should work only while it is active and within its configured validity period.
+
+The checkout must support:
+
+- Entering a discount code.
+- Applying the code.
+- Displaying a success or error message.
+- Showing the discount percentage.
+- Calculating the discount amount.
+- Removing an applied code.
+- Recalculating totals when cart quantities change.
+
+Calculate:
+
+Subtotal = Sum of current server-verified item prices × quantities.
+
+Discount = Eligible subtotal × discount percentage.
+
+Final total = Subtotal - Discount.
+
+Use integer arithmetic and a clearly documented rounding rule.
+
+Discount validation must happen on the server.
+
+The server must verify whether a discount code is active, valid, within its date range, and applicable to the order.
+
+Prevent invalid codes, negative totals, repeated application of the same code, and other manipulation.
+
+Support minimum purchase requirements and optional usage limits.
+
+For the initial implementation, discount codes are percentage-based.
+
+Do not silently discount delivery charges unless that behavior is explicitly configured.
+
+---
+
+8. CHECKOUT SYSTEM
+
+Route:
+/checkout
+
+Build a responsive checkout page that works well on mobile devices.
+
+Customer Information Form
+
+Required fields:
+
+- Full Name.
+- Email Address.
+- Phone Number.
+- Delivery Address.
+
+Also collect:
+
+- City or town.
+- State.
+- Optional delivery instructions.
+
+Preselect or suggest:
+
+State: Abia State.
+
+Country: Nigeria.
+
+Validate all required fields with Zod.
+
+Normalize and validate email addresses and phone numbers.
+
+Provide clear field-level error messages.
+
+Do not clear the cart when checkout validation fails.
+
+Order Summary
+
+Display:
+
+- Products.
+- Selected variations.
+- Quantities.
+- Unit prices.
+- Subtotal.
+- Discount.
+- Delivery fee where configured.
+- Final total.
+
+Ensure the order summary is consistent with the server-calculated amount.
+
+Payment Method
+
+Display the payment option:
+
+"Pay Securely Online (Powered by Paystack)"
+
+For the initial version, show that online payment integration is not yet active.
+
+Do not collect card details.
+
+Do not pretend a payment has succeeded.
+
+For this initial release, create orders with:
+
+Payment status: PENDING.
+
+Order status: PENDING.
+
+The system must clearly distinguish an order being placed from a payment being completed.
+
+If you provide alternative payment methods, make them configurable and do not mark orders as paid without verified payment confirmation.
+
+Place Order
+
+When the customer submits the checkout form:
+
+1. Validate the request on the server.
+2. Verify that every product exists and is active.
+3. Verify each selected variation.
+4. Verify available stock.
+5. Fetch the latest prices from the database.
+6. Revalidate the discount code.
+7. Calculate the subtotal, discount, delivery fee, and final total.
+8. Create the order and its order items in a database transaction.
+9. Save the customer's details and selected variations.
+10. Set payment status to PENDING.
+11. Set order status to PENDING.
+12. Return a safe order confirmation response.
+13. Display an order-success modal or confirmation page.
+14. Clear the cart only after the order has been successfully created.
+
+Prevent duplicate order submissions using an idempotency mechanism.
+
+Avoid overselling by implementing appropriate transaction isolation, stock reservation, or atomic stock checks.
+
+If order creation fails, preserve the cart and explain how the customer can try again.
+
+Order Confirmation
+
+Provide a unique order number.
+
+Show:
+
+- Order number.
+- Customer name.
+- Items ordered.
+- Total amount.
+- Payment status.
+- Order status.
+- Customer support contact action.
+
+Do not expose sequential database IDs or sensitive customer information in public URLs.
+
+Use an unpredictable order reference or a protected order lookup mechanism.
+
+---
+
+9. WHATSAPP INTEGRATION
+
+WhatsApp is an important customer contact channel for this business.
+
+Build reusable WhatsApp contact components.
+
+Provide:
+
+- Floating WhatsApp button.
+- Contact button on product pages.
+- Optional order enquiry button.
+- Customer support link.
+
+Allow the administrator to configure the business WhatsApp number in international format.
+
+Generate correctly encoded WhatsApp links.
+
+For product enquiries, prefill a message containing the product name, selected variation, and product URL.
+
+For order enquiries, generate a message containing the public order reference and a brief enquiry.
+
+Do not expose private customer information through publicly accessible URLs.
+
+Do not automatically send WhatsApp messages from the server unless an authorized messaging integration is configured.
+
+---
+
+10. LIVE CHAT WIDGET
+
+Implement a floating customer-support widget in the bottom-right corner.
+
+Initially, this can be a functional mock live-chat interface without an external messaging provider.
+
+The widget must include:
+
+- Floating launcher button.
+- Expandable chat panel.
+- Welcome message.
+- Message input.
+- Send button.
+- Message history for the current session.
+- Quick-action buttons.
+- WhatsApp handoff.
+- Mobile-responsive layout.
+- Accessible keyboard controls.
+
+Suggested quick actions:
+
+- Product enquiry.
+- Delivery enquiry.
+- Order assistance.
+- Speak to us on WhatsApp.
+
+Clearly treat automated responses as demo responses unless a real support backend is connected.
+
+Structure the component so that a real-time support service can be integrated later.
+
+Do not imply that a human agent is online unless availability is actually known.
+
+---
+
+11. DATABASE ARCHITECTURE WITH PRISMA
+
+Create a complete schema.prisma file compatible with Neon PostgreSQL.
+
+Use explicit relations, indexes, unique constraints, timestamps, and appropriate delete behavior.
+
+All prices and monetary amounts should use integer kobo fields, preferably BigInt or another carefully validated integer representation.
+
+Ensure serialization between Prisma results and JSON responses is handled safely when BigInt is used.
+
+Required models:
+
+Category
+
+Fields:
+
+- id.
+- name.
+- slug.
+- description.
+- image.
+- isActive.
+- createdAt.
+- updatedAt.
+
+Requirements:
+
+- Unique slug.
+- Relationship to products.
+- Seed Furniture and Electronics categories.
+
+Product
+
+Fields:
+
+- id.
+- name.
+- slug.
+- description.
+- shortDescription.
+- basePriceKobo.
+- images.
+- sku.
+- isActive.
+- isFeatured.
+- stock or an equivalent clearly defined inventory strategy.
+- categoryId.
+- createdAt.
+- updatedAt.
+
+Requirements:
+
+- Unique slug.
+- Appropriate indexes.
+- Category relationship.
+- Product variation relationship.
+- Support for product specifications where appropriate.
+- Support for SEO title and description.
+- Use JSON fields or related models for structured specifications where appropriate.
+
+Do not maintain conflicting inventory totals in multiple places without a clear consistency strategy.
+
+ProductVariation
+
+Fields:
+
+- id.
+- productId.
+- sku.
+- name.
+- attributes.
+- additionalPriceKobo.
+- stockCount.
+- image.
+- isActive.
+- createdAt.
+- updatedAt.
+
+Requirements:
+
+- Product relationship.
+- Unique SKU.
+- Indexes for product and active status.
+- Support for color, size, capacity, and other attributes.
+- Safe stock updates.
+
+Define whether inventory is tracked per variation or at product level. Use a consistent strategy.
+
+DiscountCode
+
+Fields:
+
+- id.
+- code.
+- discountPercentage.
+- isActive.
+- startsAt.
+- expiresAt.
+- minimumOrderKobo.
+- maximumUses.
+- usedCount.
+- createdAt.
+- updatedAt.
+
+Requirements:
+
+- Unique normalized code.
+- Percentage range validation.
+- Optional validity dates.
+- Optional minimum order.
+- Optional usage limits.
+
+Use database constraints where practical and server validation for business rules.
+
+Order
+
+Fields:
+
+- id.
+- orderNumber.
+- customerName.
+- customerEmail.
+- customerPhone.
+- deliveryAddress.
+- deliveryCity.
+- deliveryState.
+- deliveryCountry.
+- deliveryInstructions.
+- subtotalKobo.
+- discountAmountKobo.
+- deliveryFeeKobo.
+- totalAmountKobo.
+- discountCodeId.
+- paymentMethod.
+- paymentStatus.
+- orderStatus.
+- createdAt.
+- updatedAt.
+
+Payment status values should include:
+
+- PENDING.
+- PAID.
+- FAILED.
+- REFUNDED.
+
+Order status values should include:
+
+- PENDING.
+- CONFIRMED.
+- PROCESSING.
+- SHIPPED.
+- DELIVERED.
+- CANCELLED.
+
+Use enums where appropriate.
+
+OrderItem
+
+Fields:
+
+- id.
+- orderId.
+- productId.
+- productVariationId.
+- productNameSnapshot.
+- variationSnapshot.
+- skuSnapshot.
+- unitPriceKobo.
+- quantity.
+- lineTotalKobo.
+- createdAt.
+
+Requirements:
+
+- Order relationship.
+- Product relationship.
+- Optional variation relationship.
+- Snapshot fields preserving the purchased product name, variation, SKU, and price at order time.
+
+Order records must remain meaningful even if a product is renamed or its price changes later.
+
+Admin User
+
+Create a secure administrator model or use the selected authentication provider's appropriate user and role models.
+
+Support:
+
+- Unique email.
+- Secure authentication.
+- Role.
+- Created and updated timestamps.
+
+Do not store plaintext passwords.
+
+Store Settings
+
+Create a persistent configuration model for:
+
+- Business name.
+- Business description.
+- Logo.
+- Phone number.
+- WhatsApp number.
+- Email.
+- Business address.
+- City.
+- State.
+- Country.
+- Business hours.
+- Facebook URL.
+- Shipping configuration.
+- Store announcement.
+- SEO defaults.
+
+Allow safe editing through the admin dashboard.
+
+Additional Models
+
+Create other models when needed for:
+
+- Product reviews.
+- Customer accounts.
+- Order status history.
+- Inventory movements.
+- Audit logs.
+- Site content.
+- Homepage promotions.
+
+Do not add unnecessary complexity without a clear use case.
+
+---
+
+12. DATABASE MIGRATIONS AND SEEDING
+
+Configure Prisma for Neon PostgreSQL.
+
+Create:
+
+- prisma/schema.prisma.
+- prisma/seed.ts.
+- Required migration or schema-push instructions.
+- .env.example.
+- README.md.
+
+The database connection must use:
+
+DATABASE_URL
+
+If the chosen Prisma version or Neon configuration requires a separate direct connection URL for migrations, document that configuration and use the appropriate environment variable.
+
+For a straightforward development workflow, document:
+
+npx prisma generate
+
+npx prisma db push
+
+npx prisma db seed
+
+Explain that Prisma migrations using "prisma migrate dev" or "prisma migrate deploy" are preferable for controlled production schema evolution when migration files are maintained.
+
+Do not assume that a database is already provisioned.
+
+Seed Data
+
+Seed the following six products.
+
+Furniture Products
+
+1. Modern Luxury Sofa.
+2. Premium Dining Set.
+3. Contemporary TV Console.
+
+Electronics Products
+
+4. Smart LED Television.
+5. Double-Door Refrigerator.
+6. Home Entertainment System.
+
+Every product must have:
+
+- Product name.
+- Unique slug.
+- Description.
+- Category.
+- Price in kobo.
+- Product images.
+- SKU.
+- Stock information.
+- At least two useful variations where appropriate.
+- Relevant specifications.
+
+Example sofa variations:
+
+- Black.
+- Mahogany.
+
+Example television variations:
+
+- 43-inch.
+- 55-inch.
+- 65-inch.
+
+Assign different variation prices and realistic dummy stock counts.
+
+Use clearly labeled sample prices and stock quantities. Do not represent them as confirmed real-world prices.
+
+Use suitable image assets with reliable URLs or locally stored files.
+
+The seed script must be idempotent so running it more than once does not create duplicate products, categories, or discount codes.
+
+Seed the WELCOME10 discount code.
+
+Create the admin account only through a documented secure setup process or an explicitly configured seed environment variable.
+
+Never commit production administrator credentials.
+
+---
+
+13. ADMIN DASHBOARD
+
+Create a secure admin interface.
+
+Routes:
+
+/admin/login
+/admin
+/admin/products
+/admin/categories
+/admin/orders
+/admin/discounts
+/admin/inventory
+/admin/customers
+/admin/settings
+
+Protect every administrative route and backend operation with server-side authorization.
+
+Hiding navigation links is not sufficient security.
+
+Dashboard Overview
+
+Display:
+
+- Total products.
+- Active products.
+- Total orders.
+- Pending orders.
+- Paid orders.
+- Total sales from paid orders.
+- Low-stock products.
+- Recent orders.
+- Recent inventory changes.
+
+Use database-derived values.
+
+Clearly distinguish order totals from actual paid revenue.
+
+Do not count pending orders as completed revenue.
+
+Product Management
+
+Administrators must be able to:
+
+- Create products.
+- Edit products.
+- Delete or archive products.
+- Upload product images.
+- Change category.
+- Update prices.
+- Manage variations.
+- Update stock.
+- Set featured status.
+- Publish or unpublish products.
+- Edit SEO metadata.
+
+Use server-side validation.
+
+Confirm destructive actions.
+
+Prevent accidental deletion of order history.
+
+Prefer archiving products when they have been purchased previously.
+
+Category Management
+
+Support:
+
+- Create category.
+- Edit category.
+- Upload category image.
+- Activate or deactivate category.
+- Assign products to categories.
+
+Order Management
+
+Administrators must be able to:
+
+- View all orders.
+- Search by order number.
+- Filter by order status.
+- Filter by payment status.
+- View customer and delivery details.
+- Inspect order items and variations.
+- Update order status.
+- View order history.
+- Add internal notes where appropriate.
+
+Record significant status changes.
+
+Do not allow administrators to mark an order as paid without a properly authorized and auditable operation.
+
+Inventory Management
+
+Support:
+
+- Variation-level stock management.
+- Low-stock thresholds.
+- Stock adjustment records.
+- Inventory history.
+- Stock validation during checkout.
+
+Discount Management
+
+Allow authorized administrators to:
+
+- Create discount codes.
+- Edit discount percentages.
+- Activate or deactivate codes.
+- Set validity periods.
+- Set minimum purchase requirements.
+- Set usage limits.
+- View usage information.
+
+Store Settings
+
+Allow administrators to update the business's contact details, logo, business hours, social links, announcements, and relevant store configuration.
+
+The public storefront must read these settings from the database.
+
+---
+
+14. OPTIONAL CUSTOMER ACCOUNTS
+
+Implement customer accounts if they can be completed securely without compromising the core launch.
+
+Customers should be able to:
+
+- Register.
+- Sign in.
+- Sign out.
+- Manage their profile.
+- View their orders.
+- Review order details.
+- Track order status.
+
+Guest checkout must still work.
+
+Do not require an account merely to place an order.
+
+Use proper authorization checks to ensure one customer cannot access another customer's private orders.
+
+If a full account system would delay the core launch, keep the architecture ready for it and prioritize the complete guest checkout and admin order management workflows.
+
+---
+
+15. PAYMENT INTEGRATION ARCHITECTURE
+
+The first release must not make real Paystack API calls.
+
+However, architect the payment system so genuine Paystack checkout can be added later.
+
+Create a payment-service abstraction with clearly separated operations for:
+
+- Initializing a payment.
+- Verifying a payment.
+- Handling a payment webhook.
+- Recording payment status.
+
+For now, the implementation should leave payment initialization disabled and clearly display the pending-payment state.
+
+Do not build fake payment forms.
+
+Do not store card numbers, CVVs, or other sensitive card data.
+
+Do not trust a browser redirect as proof of payment.
+
+When Paystack is added later, verify payment server-side and validate webhook signatures before changing an order to PAID.
+
+Document the future integration points.
+
+---
+
+16. SECURITY REQUIREMENTS
+
+Implement production-minded security throughout the application.
+
+Requirements:
+
+- Server-side authentication and authorization.
+- Secure session handling.
+- Password hashing when applicable.
+- Input validation with Zod.
+- Safe database access through Prisma.
+- Rate limiting on sensitive endpoints.
+- Request size limits.
+- Protection against mass assignment.
+- Safe error handling.
+- No secrets exposed to client bundles.
+- No unrestricted administrative endpoints.
+- No trusting client-side order totals.
+- No trusting client-side discount calculations.
+- No trusting client-side stock information.
+- No unsafe HTML rendering.
+- Appropriate security headers.
+- CSRF protection where required by the chosen authentication architecture.
+- Safe file upload validation.
+- Audit logging for important administrative actions.
+- Appropriate database indexes.
+- Privacy-conscious handling of customer information.
+
+Never return stack traces, raw database errors, password hashes, or secret environment values to public clients.
+
+Protect public order lookups against enumeration and unauthorized access.
+
+Do not rely on the visual interface alone to enforce business rules.
+
+---
+
+17. IMAGE AND MEDIA MANAGEMENT
+
+Product images are essential to the premium shopping experience.
+
+Create a reusable image-upload abstraction.
+
+Use a suitable image storage provider for production, such as a compatible cloud object storage service.
+
+Do not assume the Vercel deployment filesystem is a permanent writable storage location.
+
+Support:
+
+- Product images.
+- Product variation images.
+- Category images.
+- Store logo.
+- Homepage promotional images.
+
+Validate image type, size, and upload permissions.
+
+Optimize image delivery using Next.js image optimization and correctly configured remote image hosts.
+
+Provide a graceful fallback image.
+
+Do not scrape protected or copyrighted images from the Facebook profile.
+
+Use business-authorized images where available and clearly identified placeholders otherwise.
+
+---
+
+18. SEO AND LOCAL DISCOVERABILITY
+
+Implement technical and local SEO throughout the website.
+
+Metadata
+
+Use Next.js metadata APIs.
+
+Create unique titles and descriptions for:
+
+- Homepage.
+- Furniture collection.
+- Electronics collection.
+- Product pages.
+- About page.
+- Contact page.
+
+Homepage title example:
+
+"Frankman Furniture & Electronics | Furniture and Electronics in Umuahia"
+
+Homepage description example:
+
+"Discover stylish furniture, dining sets, sofas, TV consoles and electronics at Frankman Furniture & Electronics in Umuahia, Abia State, Nigeria."
+
+These are proposed SEO examples, not claims about unverified products or services.
+
+Structured Data
+
+Implement appropriate JSON-LD where applicable:
+
+- Organization.
+- LocalBusiness or an appropriate retail business subtype.
+- Product.
+- BreadcrumbList.
+
+Include only verified or administrator-configured business information.
+
+Do not invent ratings, reviews, street addresses, or opening hours.
+
+Technical SEO
+
+Implement:
+
+- XML sitemap.
+- robots.txt.
+- Canonical URLs.
+- Open Graph metadata.
+- Social sharing images.
+- Breadcrumb navigation.
+- Semantic HTML.
+- Descriptive image alt text.
+- Search-engine-friendly product URLs.
+- Correct indexing rules.
+
+Avoid indexing admin routes, private customer pages, and sensitive order pages.
+
+---
+
+19. PERFORMANCE AND ACCESSIBILITY
+
+The site must perform well on affordable Android phones and slower Nigerian mobile connections.
+
+Requirements:
+
+- Mobile-first layouts.
+- Responsive images.
+- Lazy loading below the fold.
+- Server Components by default.
+- Minimal unnecessary client-side JavaScript.
+- Efficient Prisma queries.
+- Pagination for large product catalogs.
+- Appropriate caching and cache invalidation.
+- Optimized fonts.
+- Loading skeletons.
+- Useful empty states.
+- Error boundaries.
+- Custom 404 page.
+- Accessible forms.
+- Keyboard navigation.
+- Visible focus states.
+- Sufficient color contrast.
+- Screen-reader labels.
+- Reduced-motion support.
+
+Avoid excessive animation and large assets that make the website slow.
+
+Use Nigerian naira formatting consistently.
+
+Ensure the site remains usable on common Android screen sizes.
+
+---
+
+20. COMPLETE PROJECT STRUCTURE
+
+Create a clear, maintainable application structure similar to:
+
+src/
+app/
+page.tsx
+shop/
+page.tsx
+furniture/
+page.tsx
+electronics/
+page.tsx
+product/
+[slug]/
+page.tsx
+cart/
+page.tsx
+checkout/
+page.tsx
+order-confirmation/
+[reference]/
+page.tsx
+about/
+page.tsx
+contact/
+page.tsx
+admin/
+login/
+page.tsx
+page.tsx
+products/
+page.tsx
+categories/
+page.tsx
+orders/
+page.tsx
+discounts/
+page.tsx
+inventory/
+page.tsx
+settings/
+page.tsx
+api/
+products/
+route.ts
+discounts/
+validate/
+route.ts
+checkout/
+route.ts
+orders/
+route.ts
+components/
+layout/
+home/
+products/
+cart/
+checkout/
+admin/
+support/
+ui/
+lib/
+prisma.ts
+auth.ts
+validation.ts
+pricing.ts
+discounts.ts
+inventory.ts
+orders.ts
+payments/
+seo.ts
+utils.ts
+store/
+cart-store.ts
+types/
+
+prisma/
+schema.prisma
+seed.ts
+
+public/
+images/
+
+tests/
+unit/
+e2e/
+
+Also provide:
+
+- package.json.
+- tsconfig.json.
+- Tailwind configuration.
+- PostCSS configuration.
+- Next.js configuration.
+- Prisma configuration appropriate to the selected Prisma version.
+- .env.example.
+- .gitignore.
+- README.md.
+- Vercel deployment instructions.
+
+Adapt the structure as necessary, but preserve separation between business logic, data access, UI, and validation.
+
+---
+
+21. REQUIRED ENVIRONMENT VARIABLES
+
+Create an .env.example with the variables actually used by the project.
+
+At minimum, document:
+
+DATABASE_URL=
+
+DIRECT_URL=
+
+AUTH_SECRET=
+
+NEXT_PUBLIC_SITE_URL=
+
+NEXT_PUBLIC_WHATSAPP_NUMBER=
+
+NEXT_PUBLIC_FACEBOOK_URL=https://www.facebook.com/profile.php?id=61569349703465
+
+Optional storage configuration should be included only if that provider is implemented.
+
+If an authentication provider requires additional configuration, document it.
+
+Keep actual secrets in local environment files or the appropriate Vercel environment-variable settings.
+
+Do not commit .env files containing real credentials.
+
+Use the appropriate pooled Neon connection URL for application traffic and a direct connection URL for migrations when required by the selected setup.
+
+Document how to obtain these values from Neon.
+
+---
+
+22. VERCEL DEPLOYMENT READINESS
+
+The project must be deployable to Vercel without depending on a permanently running local server.
+
+Requirements:
+
+- Compatible Next.js build.
+- Correct TypeScript configuration.
+- Working production build.
+- Prisma Client generation during installation or build as appropriate.
+- Neon PostgreSQL connectivity.
+- Correct environment-variable configuration.
+- No reliance on persistent local filesystem writes.
+- No unnecessary long-running background processes.
+- Correct image-host configuration.
+- Server-side error handling.
+- Production-safe database connection reuse.
+
+Document the deployment process:
+
+1. Create the Next.js project.
+2. Install dependencies.
+3. Create a Neon PostgreSQL database.
+4. Configure environment variables.
+5. Generate Prisma Client.
+6. Apply the database schema or migrations.
+7. Run the seed script.
+8. Configure the administrator securely.
+9. Run tests.
+10. Run the production build.
+11. Push the code to a Git repository.
+12. Import the repository into Vercel.
+13. Configure production environment variables.
+14. Deploy.
+15. Verify the production storefront, checkout, database connectivity, and admin authentication.
+
+Do not run destructive database commands automatically during every production deployment.
+
+Explain the difference between development schema changes and production migrations.
+
+---
+
+23. TESTING REQUIREMENTS
+
+Write meaningful tests rather than only providing placeholder test files.
+
+Unit Tests
+
+Test:
+
+- Price calculations.
+- Variation pricing.
+- Discount calculations.
+- Discount eligibility.
+- Currency formatting.
+- Checkout validation.
+- Order total calculations.
+- Stock validation.
+
+Integration Tests
+
+Test:
+
+- Product retrieval.
+- Category filtering.
+- Product variation retrieval.
+- Discount validation.
+- Order creation.
+- Invalid product rejection.
+- Invalid variation rejection.
+- Out-of-stock rejection.
+- Duplicate order prevention.
+- Database transaction behavior.
+
+End-to-End Tests
+
+Use Playwright to verify:
+
+1. A visitor opens the homepage.
+2. The visitor opens the furniture collection.
+3. The visitor selects a product.
+4. The visitor selects a variation.
+5. The product price updates correctly.
+6. The visitor adds the product to the cart.
+7. The cart displays the correct variation and amount.
+8. The visitor applies WELCOME10.
+9. The checkout calculates the correct total.
+10. The visitor enters delivery details.
+11. The visitor places an order.
+12. The system stores the order with PENDING payment status.
+13. The confirmation page displays the order reference.
+14. An authorized administrator can view and manage the order.
+15. An unauthorized visitor cannot access the admin dashboard.
+
+Include setup instructions for running tests.
+
+---
+
+24. REQUIRED DELIVERABLES
+
+Deliver the complete working source code for the system.
+
+The final deliverables must include:
+
+1. Complete Next.js application.
+2. Responsive premium storefront.
+3. Homepage.
+4. Furniture and electronics collection pages.
+5. Search and filtering.
+6. Product detail pages.
+7. Product variations and dynamic pricing.
+8. Persistent shopping cart.
+9. Percentage discount system.
+10. Checkout form.
+11. Server-side order creation.
+12. Order confirmation.
+13. Prisma schema.
+14. Neon PostgreSQL configuration.
+15. Database seed script.
+16. Secure admin authentication.
+17. Admin dashboard.
+18. Product management.
+19. Variation and inventory management.
+20. Order management.
+21. Discount management.
+22. Store settings.
+23. WhatsApp contact integration.
+24. Floating live-chat interface.
+25. SEO metadata and structured data.
+26. Environment-variable example.
+27. README with setup and deployment instructions.
+28. Unit, integration, and end-to-end tests.
+29. Production build configuration.
+30. Clear documentation of unfinished optional integrations.
+
+Do not substitute screenshots or static HTML for the functioning application.
+
+Do not omit files required to install, build, run, seed, test, or deploy the project.
+
+---
+
+25. IMPLEMENTATION WORKFLOW
+
+Follow this implementation sequence.
+
+Phase 1: Foundation
+
+- Inspect the available project environment.
+- Initialize Next.js, TypeScript, Tailwind CSS, and shadcn/ui.
+- Configure Prisma and Neon.
+- Define the database schema.
+- Create the database client.
+- Configure environment variables.
+- Create the seed script.
+
+Phase 2: Storefront
+
+- Build the global layout.
+- Build the header and footer.
+- Build the homepage.
+- Build product collections.
+- Implement search and filtering.
+- Build product details and variations.
+
+Phase 3: Commerce
+
+- Implement Zustand cart state.
+- Implement server-side pricing.
+- Implement discount validation.
+- Implement checkout.
+- Implement transactional order creation.
+- Build the order confirmation page.
+
+Phase 4: Administration
+
+- Implement secure authentication.
+- Build the admin dashboard.
+- Implement product and category management.
+- Implement variation and inventory management.
+- Implement order management.
+- Implement discount management.
+- Implement store settings.
+
+Phase 5: Customer Experience
+
+- Implement WhatsApp links.
+- Implement the floating support widget.
+- Polish responsive layouts.
+- Add loading, empty, and error states.
+
+Phase 6: Production Readiness
+
+- Add SEO.
+- Add structured data.
+- Add tests.
+- Review security.
+- Verify database transactions.
+- Run linting and type checking.
+- Run the production build.
+- Document deployment.
+
+After each phase, verify that the implemented features work before moving to the next phase.
+
+---
+
+26. ACCEPTANCE CRITERIA
+
+The application is not complete until the following conditions are satisfied:
+
+- The homepage displays the correct brand and slogan.
+- Customers can browse furniture and electronics.
+- Product information comes from the database.
+- Product variations change the displayed price.
+- Customers can add specific variations to their carts.
+- The cart persists after page refresh.
+- Discount codes are validated on the server.
+- The final checkout total is calculated on the server.
+- Customers can place orders without creating accounts.
+- Orders persist in Neon PostgreSQL.
+- Newly created orders have PENDING payment and order statuses.
+- Customers see a working confirmation experience.
+- Product inventory is checked during checkout.
+- Administrators can manage products, variations, orders, and discounts.
+- Unauthorized users cannot access protected administrative functions.
+- WhatsApp contact links work.
+- The floating support widget works.
+- The website is responsive.
+- The website has useful metadata and local SEO foundations.
+- The seed script creates three furniture products and three electronics products.
+- The seed script can be run repeatedly without creating duplicates.
+- Environment variables are documented.
+- The Prisma database setup is documented.
+- The application builds successfully for production.
+- Critical commerce flows are covered by automated tests.
+
+---
+
+FINAL INSTRUCTION
+
+Begin by inspecting the existing development environment and determining whether a project already exists.
+
+Then implement the complete application in the available workspace.
+
+Do not stop after producing an architecture document, a plan, a landing page, or a handful of example components.
+
+Create the actual files, connect the application to Prisma, implement the business logic, and verify the result.
+
+If external credentials are unavailable, implement the integration interfaces and document the exact configuration required to activate them.
+
+If a feature cannot be completed, state precisely what remains unfinished instead of pretending it works.
+
+Prioritize correctness, security, maintainability, premium design, mobile performance, and a complete shopping-to-order workflow.
+
+The final product should be a professional digital storefront that Frankman Furniture & Electronics can configure, populate, deploy, and operate as its online retail platform.

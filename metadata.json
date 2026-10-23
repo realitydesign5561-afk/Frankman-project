@@ -1,0 +1,6 @@
+{
+  "name": "Frankman Furniture & Electronics",
+  "description": "Premium furniture and home electronics retail platform in Umuahia, Abia State, Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

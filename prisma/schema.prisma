@@ -1,0 +1,222 @@
+// Prisma Schema for Frankman Furniture & Electronics
+// Configured for Neon PostgreSQL or compatible relational SQL database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Product {
+  id               String             @id @default(cuid())
+  name             String
+  slug             String             @unique
+  description      String
+  shortDescription String?
+  basePriceKobo    BigInt
+  images           String             // JSON string array of image URLs
+  sku              String             @unique
+  isActive         Boolean            @default(true)
+  isFeatured       Boolean            @default(false)
+  categoryId       String
+  category         Category           @relation(fields: [categoryId], references: [id])
+  variations       ProductVariation[]
+  orderItems       OrderItem[]
+  specifications   String?            // JSON string of specs e.g. material, dimensions, warranty
+  seoTitle         String?
+  seoDescription   String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([isActive, isFeatured])
+}
+
+model ProductVariation {
+  id                  String              @id @default(cuid())
+  productId           String
+  product             Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku                 String              @unique
+  name                String
+  attributes          String              // JSON string of attributes: { color, size, capacity, etc. }
+  additionalPriceKobo BigInt              @default(0)
+  stockCount          Int                 @default(0)
+  image               String?
+  isActive            Boolean             @default(true)
+  orderItems          OrderItem[]
+  inventoryMovements  InventoryMovement[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([productId])
+  @@index([sku])
+  @@index([isActive])
+}
+
+model DiscountCode {
+  id                 String    @id @default(cuid())
+  code               String    @unique
+  discountPercentage Int       // e.g. 10 for 10%
+  isActive           Boolean   @default(true)
+  startsAt           DateTime?
+  expiresAt          DateTime?
+  minimumOrderKobo   BigInt    @default(0)
+  maximumUses        Int?
+  usedCount          Int       @default(0)
+  orders             Order[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+}
+
+model Order {
+  id                   String        @id @default(cuid())
+  orderNumber          String        @unique // e.g. FF-2026-XXXX
+  customerName         String
+  customerEmail        String
+  customerPhone        String
+  deliveryAddress      String
+  deliveryCity         String
+  deliveryState        String
+  deliveryCountry      String        @default("Nigeria")
+  deliveryInstructions String?
+  subtotalKobo         BigInt
+  discountAmountKobo   BigInt        @default(0)
+  deliveryFeeKobo      BigInt        @default(0)
+  totalAmountKobo      BigInt
+  discountCodeId       String?
+  discountCode         DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  paymentMethod        String        @default("PAYSTACK_PENDING")
+  paymentStatus        PaymentStatus @default(PENDING)
+  orderStatus          OrderStatus   @default(PENDING)
+  items                OrderItem[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([orderNumber])
+  @@index([paymentStatus])
+  @@index([orderStatus])
+  @@index([customerEmail])
+}
+
+model OrderItem {
+  id                  String            @id @default(cuid())
+  orderId             String
+  order               Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId           String
+  product             Product           @relation(fields: [productId], references: [id])
+  productVariationId  String?
+  productVariation    ProductVariation? @relation(fields: [productVariationId], references: [id])
+  productNameSnapshot String
+  variationSnapshot   String?           // e.g. "Charcoal Grey / Large"
+  skuSnapshot         String
+  unitPriceKobo       BigInt
+  quantity            Int
+  lineTotalKobo       BigInt
+  createdAt           DateTime          @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         AdminRole @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([email])
+}
+
+model StoreSettings {
+  id                         String   @id @default("default")
+  businessName               String   @default("Frankman Furniture & Electronics")
+  businessDescription        String   @default("Premium furniture and electronics showroom serving Umuahia, Abia State, Nigeria.")
+  logo                       String?
+  phoneNumber                String   @default("+234 803 123 4567")
+  whatsappNumber             String   @default("+2348031234567")
+  email                      String   @default("info@frankman.ng")
+  businessAddress            String   @default("Umuahia, Abia State, Nigeria")
+  city                       String   @default("Umuahia")
+  state                      String   @default("Abia State")
+  country                    String   @default("Nigeria")
+  businessHours              String   @default("Monday - Saturday: 8:30 AM - 6:30 PM | Sunday: Closed")
+  facebookUrl                String   @default("https://www.facebook.com/profile.php?id=61569349703465")
+  shippingFeeKobo            BigInt   @default(1500000) // Default ₦15,000 for local delivery
+  freeShippingThresholdKobo  BigInt   @default(30000000) // Free delivery over ₦300,000
+  announcementText           String   @default("Discover stylish furniture and quality electronics in Umuahia.")
+  announcementActive         Boolean  @default(true)
+  updatedAt                  DateTime @updatedAt
+}
+
+model InventoryMovement {
+  id            String           @id @default(cuid())
+  variationId   String
+  variation     ProductVariation @relation(fields: [variationId], references: [id], onDelete: Cascade)
+  change        Int              // positive for restock, negative for sale
+  previousStock Int
+  newStock      Int
+  reason        String           // e.g. "Order FF-2026-1049", "Manual adjustment"
+  createdAt     DateTime         @default(now())
+
+  @@index([variationId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g. "PRODUCT_UPDATE", "ORDER_STATUS_CHANGED"
+  entity     String   // e.g. "Order", "Product"
+  entityId   String
+  details    String   // JSON string of changes
+  adminEmail String
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId])
+}
