@@ -10,8 +10,8 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   onLoginSuccess,
   onNavigate,
 }) => {
-  const [email, setEmail] = useState('admin@frankman.ng');
-  const [password, setPassword] = useState('FrankmanAdmin2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,12 +106,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-
-        <div className="p-3 bg-[#FAF9F5] border border-stone-200 rounded-lg text-[11px] text-stone-600 space-y-1">
-          <p className="font-semibold text-stone-800">Default Demo Credentials:</p>
-          <p>Email: <code className="font-mono text-stone-900">admin@frankman.ng</code></p>
-          <p>Password: <code className="font-mono text-stone-900">FrankmanAdmin2026!</code></p>
-        </div>
 
         <div className="text-center">
           <button

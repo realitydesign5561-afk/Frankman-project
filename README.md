@@ -63,10 +63,9 @@ The database seed (`prisma/seed.ts`) populates the initial catalog with 6 produc
 - `WELCOME10`: 10% discount on orders over ₦50,000.
 - `UMUAHIA5`: 5% discount on orders over ₦20,000.
 
-### Default Administrator Credentials
+### Administrator Access
 - **Portal URL**: `/admin` or `/admin/login`
-- **Email**: `admin@frankman.ng`
-- **Password**: `FrankmanAdmin2026!`
+- Credentials are managed privately by the site administrator and are not displayed in the application.
 
 ---
 
