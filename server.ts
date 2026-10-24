@@ -342,6 +342,12 @@ async function createServer() {
       server: { middlewareMode: true, hmr: false },
       appType: 'spa',
     });
+    // Serve the HTML entry directly so Vite cannot inject its HMR client.
+    // The hosted preview does not expose the WebSocket upgrade endpoint that
+    // the injected client requires; source modules still pass through Vite.
+    app.get('/', (_req: Request, res: Response) => {
+      res.sendFile(path.resolve(__dirname, 'index.html'));
+    });
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(__dirname, 'dist');
