@@ -2,29 +2,24 @@
 
 @layer base {
   :root {
-    --font-heading: "Playfair Display", Georgia, serif;
-    --font-editorial: "Playfair Display", Georgia, serif;
-    --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    --color-brand: #b58235;
-    --color-brand-hover: #9e6f2b;
-    --color-brand-light: #fdf8ee;
-    --color-canvas: #faf8f5;
+    --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+    --color-primary: #0f172a;
+    --color-accent: #d97706;
+    --color-accent-hover: #b45309;
+    --color-canvas: #f8fafc;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1c1917;
-    background-color: #faf8f5;
+    color: #0f172a;
+    background-color: #f8fafc;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3, .font-heading {
+  h1, h2, h3, h4, .font-heading {
     font-family: var(--font-heading);
-  }
-
-  .font-editorial {
-    font-family: var(--font-editorial);
   }
 
   .font-sans {
@@ -38,14 +33,23 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f4f1ea;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d8d0c2;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #b58235;
+  background: #d97706;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Animation utilities */

@@ -102,14 +102,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     activeAdditionalKobo
   );
 
-  const imagesList = product.images && product.images.length > 0
-    ? product.images
-    : ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80'];
+  const imagesList = React.useMemo(() => {
+    const list = [...(product.images || [])];
+    if (selectedVariation?.image && !list.includes(selectedVariation.image)) {
+      list.unshift(selectedVariation.image);
+    }
+    return list.length > 0
+      ? list
+      : ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80'];
+  }, [product.images, selectedVariation?.image]);
 
-  const displayedImage =
-    selectedVariation?.image && activeImageIndex === 0
-      ? selectedVariation.image
-      : imagesList[activeImageIndex] || imagesList[0];
+  const displayedImage = imagesList[activeImageIndex] || imagesList[0];
 
   const availableStock = selectedVariation ? selectedVariation.stockCount : 10;
   const isOutOfStock = availableStock <= 0;
@@ -248,12 +251,56 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             {product.description}
           </p>
 
-          {/* Product Variations Selector */}
+          {/* Product Variations / Color Shades Selector */}
           {product.variations && product.variations.length > 0 && (
-            <div className="space-y-2.5">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
-                Select Option / Variation:
-              </label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  {product.variations.some((v) => v.attributes?.colorHex || v.attributes?.color)
+                    ? 'Available Color Shades & Finishes:'
+                    : 'Select Option / Variation:'}
+                </label>
+                {selectedVariation && (
+                  <span className="text-xs text-[#B58235] font-semibold">
+                    {selectedVariation.name}
+                  </span>
+                )}
+              </div>
+
+              {/* Visual Circular Color Swatches if variations have colorHex */}
+              {product.variations.some((v) => v.attributes?.colorHex) && (
+                <div className="flex items-center gap-2 flex-wrap pt-0.5 pb-1">
+                  {product.variations.map((v) => {
+                    const isSelected = selectedVariation?.id === v.id;
+                    const hex = v.attributes?.colorHex || '#D97706';
+                    return (
+                      <button
+                        key={`swatch-${v.id}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariation(v);
+                          setActiveImageIndex(0);
+                        }}
+                        className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-amber-600 bg-amber-50 ring-2 ring-amber-600/40 text-slate-900 font-semibold shadow-2xs'
+                            : 'border-slate-200 bg-white hover:border-slate-400 text-slate-700'
+                        }`}
+                        title={`${v.name} (${hex})`}
+                      >
+                        <span
+                          className="w-4 h-4 rounded-full border border-black/15 shadow-2xs shrink-0"
+                          style={{ backgroundColor: hex }}
+                        />
+                        <span className="text-[11px] truncate max-w-[130px]">{v.name}</span>
+                        {isSelected && <Check className="w-3 h-3 text-amber-600 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Variation Option Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {product.variations.map((v) => {
                   const isSelected = selectedVariation?.id === v.id;
@@ -261,28 +308,46 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     product.basePriceKobo,
                     v.additionalPriceKobo
                   );
+                  const hex = v.attributes?.colorHex;
                   return (
                     <button
                       key={v.id}
+                      type="button"
                       onClick={() => {
                         setSelectedVariation(v);
                         setActiveImageIndex(0);
                       }}
-                      className={`text-left p-3 rounded-lg border text-xs transition-all ${
+                      className={`text-left p-3 rounded-lg border text-xs transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-stone-950 bg-stone-50 ring-1 ring-stone-950'
-                          : 'border-stone-200 hover:border-stone-400 bg-white'
+                          ? 'border-amber-600 bg-amber-50/60 ring-1.5 ring-amber-600 shadow-xs'
+                          : 'border-slate-200 hover:border-slate-400 bg-white'
                       }`}
                     >
-                      <div className="font-semibold text-stone-900 flex items-center justify-between">
-                        <span>{v.name}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-stone-900" />}
+                      <div className="font-semibold text-slate-900 flex items-center justify-between">
+                        <div className="flex items-center gap-2 truncate">
+                          {hex && (
+                            <span
+                              className="w-3.5 h-3.5 rounded-full border border-black/15 shrink-0 shadow-2xs"
+                              style={{ backgroundColor: hex }}
+                            />
+                          )}
+                          <span className="truncate">{v.name}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />}
                       </div>
-                      <div className="text-[11px] text-stone-500 mt-0.5 tabular-nums">
+                      <div className="text-[11px] text-slate-600 mt-1 tabular-nums font-medium">
                         {formatNaira(varPriceKobo)}
+                        {v.additionalPriceKobo > 0 && (
+                          <span className="text-[10px] text-amber-600 ml-1.5 font-semibold">
+                            (+{formatNaira(v.additionalPriceKobo)})
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[10px] text-stone-400 mt-1">
-                        Stock: {v.stockCount} units
+                      <div className="text-[10px] text-slate-400 mt-0.5 flex items-center justify-between">
+                        <span>Stock: {v.stockCount} units</span>
+                        {v.image && (
+                          <span className="text-[10px] text-amber-600 font-medium">Shade Photo</span>
+                        )}
                       </div>
                     </button>
                   );
@@ -294,21 +359,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           {/* Quantity and Actions */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center gap-3">
-              <div className="flex items-center border border-stone-300 rounded-full bg-stone-50 min-h-[46px]">
+              <div className="flex items-center border border-slate-300 rounded-lg bg-slate-50 min-h-[46px]">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3.5 py-2 text-stone-600 hover:text-stone-900 transition-colors font-bold text-sm"
+                  className="px-3.5 py-2 text-slate-600 hover:text-slate-900 transition-colors font-bold text-sm"
                   aria-label="Decrease quantity"
                 >
                   -
                 </button>
-                <span className="px-3 text-xs font-bold text-stone-900 tabular-nums">
+                <span className="px-3 text-xs font-bold text-slate-900 tabular-nums">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
                   disabled={quantity >= availableStock}
-                  className="px-3.5 py-2 text-stone-600 hover:text-stone-900 disabled:opacity-30 transition-colors font-bold text-sm"
+                  className="px-3.5 py-2 text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-colors font-bold text-sm"
                   aria-label="Increase quantity"
                 >
                   +
@@ -319,7 +384,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="flex-1 py-3 px-5 bg-[#B58235] hover:bg-[#9E6F2B] disabled:bg-stone-300 text-white text-xs font-semibold tracking-wide rounded-full flex items-center justify-center gap-2 shadow-xs transition-all min-h-[46px] cursor-pointer"
+                className="flex-1 py-3 px-5 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white text-xs font-semibold tracking-wide rounded-lg flex items-center justify-center gap-2 shadow-xs transition-all min-h-[46px] cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>{isOutOfStock ? 'Currently Unavailable' : 'Add to Shopping Bag'}</span>
@@ -333,7 +398,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 onNavigate('/checkout');
               }}
               disabled={isOutOfStock}
-              className="w-full py-3 px-5 border-2 border-[#B58235] text-[#B58235] hover:bg-[#B58235] hover:text-white disabled:border-stone-200 disabled:text-stone-400 rounded-full text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 min-h-[46px] cursor-pointer"
+              className="w-full py-3 px-5 bg-[#0F172A] hover:bg-slate-800 text-white disabled:bg-slate-200 disabled:text-slate-400 rounded-lg text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 min-h-[46px] cursor-pointer shadow-xs"
             >
               <span>Instant Paystack Checkout</span>
             </button>
@@ -344,7 +409,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               message={whatsappInquiryMessage}
               label="Inquire via WhatsApp (Showroom Desk)"
               variant="outline"
-              className="w-full py-2.5 rounded-full min-h-[44px]"
+              className="w-full py-2.5 rounded-lg min-h-[44px]"
             />
           </div>
 

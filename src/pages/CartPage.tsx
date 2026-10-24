@@ -296,7 +296,7 @@ export const CartPage: React.FC<CartPageProps> = ({ onNavigate }) => {
 
             <button
               onClick={() => onNavigate('/checkout')}
-              className="w-full py-4 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all min-h-[48px] cursor-pointer"
+              className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all min-h-[48px] cursor-pointer"
             >
               <span>Proceed to Paystack Checkout</span>
               <ArrowRight className="w-4 h-4" />

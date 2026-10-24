@@ -1,5 +1,22 @@
-import React, { useState } from 'react';
-import { ShoppingBag, Search, Menu, X, Shield, Phone, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  ShoppingBag,
+  Search,
+  Menu,
+  X,
+  Phone,
+  User,
+  HelpCircle,
+  ChevronDown,
+  ShieldCheck,
+  Truck,
+  MessageCircle,
+  Lock,
+  Layers,
+  Sparkles,
+  Flame,
+  ArrowRight,
+} from 'lucide-react';
 import { useCartStore } from '../../store/cart-store';
 
 interface HeaderProps {
@@ -12,28 +29,39 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentPath = '/',
   onNavigate,
-  announcementText = 'Handcrafted furniture & smart inverter electronics in Nigeria. Pay securely with Paystack.',
+  announcementText = 'Free Delivery within Ibadan & Lagos on orders over ₦200,000 · Pay securely with Paystack',
   announcementActive = true,
 }) => {
   const { getTotalCount, setDrawerOpen } = useCartStore();
   const totalCount = getTotalCount();
+
   const [announcementDismissed, setAnnouncementDismissed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [helpDropdownOpen, setHelpDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Shop', path: '/shop' },
-    { label: 'Furniture', path: '/shop/furniture' },
-    { label: 'Electronics', path: '/shop/electronics' },
-    { label: 'About Us', path: '/about' },
-    { label: 'Showroom', path: '/contact' },
-  ];
+  const accountRef = useRef<HTMLDivElement>(null);
+  const helpRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+      if (helpRef.current && !helpRef.current.contains(event.target as Node)) {
+        setHelpDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNav = (path: string) => {
     setMobileMenuOpen(false);
-    setSearchOpen(false);
+    setAccountDropdownOpen(false);
+    setHelpDropdownOpen(false);
     onNavigate(path);
   };
 
@@ -45,178 +73,410 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const categoryRibbon = [
+    { label: 'Living Room', path: '/shop?category=living' },
+    { label: 'Dining Suites', path: '/shop?category=dining' },
+    { label: 'Bedroom Furniture', path: '/shop?category=bedroom' },
+    { label: 'Office & Workspaces', path: '/shop?category=office' },
+    { label: 'TV & Consoles', path: '/shop?category=consoles' },
+    { label: 'Smart Electronics', path: '/shop/electronics' },
+    { label: 'Flash Deals', path: '/shop?deals=true', isDeal: true },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE5DC]/80 transition-all">
-      {/* Top Announcement Bar */}
+    <header className="sticky top-0 z-40 w-full shadow-xs">
+      {/* 1. TOP BANNER: Charcoal Navy Background (#0F172A), White text */}
       {announcementActive && !announcementDismissed && (
-        <div className="bg-[#B58235] text-white px-4 py-1.5 text-[11px] sm:text-xs flex items-center justify-between text-center tracking-wide font-medium">
-          <div className="flex-1 text-center flex items-center justify-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-            <span>{announcementText}</span>
+        <div className="bg-[#0F172A] text-white text-[11px] sm:text-xs py-1.5 px-4 sm:px-8 border-b border-slate-800">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            {/* Promo text */}
+            <div className="flex items-center gap-2 truncate">
+              <span className="bg-amber-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider shrink-0">
+                PROMO
+              </span>
+              <span className="truncate text-slate-200">
+                {announcementText}
+              </span>
+            </div>
+
+            {/* Quick Trust badges / Hotline */}
+            <div className="hidden md:flex items-center gap-5 text-slate-300 text-[11px] shrink-0">
+              <div className="flex items-center gap-1.5">
+                <Truck className="w-3.5 h-3.5 text-amber-500" />
+                <span>Doorstep Nationwide Delivery</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />
+                <span>Paystack Verified</span>
+              </div>
+              <a
+                href="tel:+2348031234567"
+                className="flex items-center gap-1 hover:text-white transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 text-amber-500" />
+                <span>+234 803 123 4567</span>
+              </a>
+              <button
+                onClick={() => setAnnouncementDismissed(true)}
+                className="text-slate-400 hover:text-white transition-colors p-0.5 cursor-pointer"
+                aria-label="Dismiss banner"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => setAnnouncementDismissed(true)}
-            className="text-white/80 hover:text-white p-1 ml-2 transition-colors cursor-pointer"
-            aria-label="Dismiss announcement"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
         </div>
       )}
 
-      {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
-        <div className="flex items-center justify-between gap-6">
-          {/* Left: Mobile Menu Toggle + Logo */}
+      {/* 2. MAIN HEADER: Pure White Background (#FFFFFF) */}
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-3.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 lg:gap-8">
+          {/* Left: Mobile Menu Button & Brand Logo */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
-              aria-label="Open mobile menu"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 text-slate-700 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              aria-label="Open navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <Menu className="w-6 h-6" />
             </button>
 
-            {/* Brand Logo & Wordmark matching Névo style */}
+            {/* Logo: Frankman Furnitures */}
             <button
               onClick={() => handleNav('/')}
               className="flex items-center gap-2.5 group cursor-pointer text-left"
+              title="Frankman Furnitures Home"
             >
-              {/* Organic furniture leaf emblem */}
-              <div className="w-8 h-8 rounded-full bg-[#B58235] text-white flex items-center justify-center shadow-xs group-hover:bg-[#9E6F2B] transition-colors">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2v-6h2v6zm-2-8a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
-                </svg>
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#0F172A] text-amber-500 flex items-center justify-center font-bold text-lg shadow-xs group-hover:bg-slate-800 transition-colors">
+                <span>F</span>
               </div>
-              <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-stone-900 group-hover:text-[#B58235] transition-colors">
-                Frankman
-              </span>
+              <div>
+                <span className="block font-bold text-lg sm:text-xl tracking-tight text-[#0F172A] leading-tight">
+                  Frankman <span className="text-amber-600 font-extrabold">Furnitures</span>
+                </span>
+                <span className="hidden sm:block text-[10px] text-slate-500 uppercase tracking-widest font-medium">
+                  Luxury Living &amp; Electronics
+                </span>
+              </div>
             </button>
           </div>
 
-          {/* Center: Clean Nav Links (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-stone-600">
-            {navLinks.map((link) => {
-              const isActive = currentPath === link.path;
-              return (
-                <button
-                  key={link.path}
-                  onClick={() => handleNav(link.path)}
-                  className={`transition-colors whitespace-nowrap hover:text-stone-950 py-1 cursor-pointer ${
-                    isActive ? 'text-[#B58235] font-bold' : ''
-                  }`}
-                >
-                  {link.label}
-                </button>
-              );
-            })}
-          </nav>
+          {/* Center: Prominent Wide Search Bar with Warm Amber Button */}
+          <div className="hidden lg:flex flex-1 max-w-2xl">
+            <form onSubmit={handleSearchSubmit} className="w-full flex items-center">
+              <div className="relative w-full flex items-center">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search modern sofas, dining tables, ergonomic chairs, TVs..."
+                  className="w-full pl-4 pr-10 py-2.5 bg-slate-50 border-2 border-slate-200 border-r-0 rounded-l-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-600 focus:bg-white transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm rounded-r-lg border-2 border-amber-600 flex items-center gap-2 transition-colors cursor-pointer shadow-xs shrink-0"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4" />
+                <span>Search</span>
+              </button>
+            </form>
+          </div>
 
-          {/* Right Action Icons & Shopping Bag Pill */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search Button */}
-            <button
-              onClick={() => setSearchOpen(!searchOpen)}
-              className="w-9 h-9 rounded-full bg-white border border-[#EAE5DC] hover:border-stone-400 text-stone-700 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
-              aria-label="Search showroom"
-            >
-              <Search className="w-4 h-4" />
-            </button>
+          {/* Right: Account, Help, and Cart */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Account Dropdown */}
+            <div className="relative" ref={accountRef}>
+              <button
+                onClick={() => {
+                  setAccountDropdownOpen(!accountDropdownOpen);
+                  setHelpDropdownOpen(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-700 hover:text-amber-700 hover:bg-slate-50 transition-colors cursor-pointer text-xs font-semibold"
+                aria-expanded={accountDropdownOpen}
+              >
+                <User className="w-5 h-5 text-slate-700" />
+                <div className="hidden sm:block text-left leading-tight">
+                  <span className="block text-[10px] text-slate-400 font-normal">Welcome</span>
+                  <span>Account</span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+              </button>
 
-            {/* Admin Portal Link */}
-            <button
-              onClick={() => handleNav('/admin')}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-stone-600 hover:text-stone-950 hover:bg-stone-100 transition-colors cursor-pointer"
-              title="Admin Portal"
-            >
-              <Shield className="w-3.5 h-3.5 text-stone-500" />
-              <span>Admin</span>
-            </button>
+              {/* Dropdown Menu */}
+              {accountDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-900">Frankman Customer</p>
+                    <p className="text-[11px] text-slate-500">Nigeria Showroom Portal</p>
+                  </div>
+                  <button
+                    onClick={() => handleNav('/admin')}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-amber-50 hover:text-amber-700 flex items-center gap-2 font-medium cursor-pointer"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Admin Workspace Portal</span>
+                  </button>
+                  <button
+                    onClick={() => handleNav('/shop')}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Browse Showroom Catalog</span>
+                  </button>
+                  <button
+                    onClick={() => handleNav('/contact')}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Contact Umuahia Hub</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
-            {/* Shopping Bag Pill Button in Warm Gold */}
+            {/* Help Dropdown */}
+            <div className="relative" ref={helpRef}>
+              <button
+                onClick={() => {
+                  setHelpDropdownOpen(!helpDropdownOpen);
+                  setAccountDropdownOpen(false);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-slate-700 hover:text-amber-700 hover:bg-slate-50 transition-colors cursor-pointer text-xs font-semibold"
+                aria-expanded={helpDropdownOpen}
+              >
+                <HelpCircle className="w-5 h-5 text-slate-700" />
+                <span className="hidden sm:inline">Help</span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+              </button>
+
+              {/* Help Dropdown Menu */}
+              {helpDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-900">Help &amp; Customer Support</p>
+                    <p className="text-[11px] text-slate-500">Showroom hours: 8:30 AM - 6:30 PM</p>
+                  </div>
+                  <a
+                    href="https://wa.me/2348031234567?text=Hello%20Frankman%20Furnitures,%20I%20need%20assistance%20with%20an%20order."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 flex items-center gap-2 font-medium cursor-pointer"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+                    <span>Live WhatsApp Support</span>
+                  </a>
+                  <button
+                    onClick={() => handleNav('/about')}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Timber &amp; Inverter Guarantee</span>
+                  </button>
+                  <button
+                    onClick={() => handleNav('/contact')}
+                    className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    <Truck className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Delivery Rates &amp; Schedule</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Cart Icon with Floating Warm Amber Quantity Badge */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold tracking-wide shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-              aria-label={`Shopping bag with ${totalCount} items`}
+              className="relative flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors cursor-pointer text-xs font-bold"
+              aria-label={`Shopping Cart with ${totalCount} items`}
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Bag</span>
-              <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums font-bold">
-                {totalCount}
-              </span>
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5 text-amber-700" />
+                {totalCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-amber-600 text-white text-[10px] font-extrabold w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-xs animate-in zoom-in-75 duration-150">
+                    {totalCount}
+                  </span>
+                )}
+              </div>
+              <span className="hidden sm:inline">Cart</span>
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Expandable Search Drawer */}
-      {searchOpen && (
-        <div className="max-w-4xl mx-auto px-4 pb-3 animate-in fade-in slide-in-from-top-1">
-          <form
-            onSubmit={handleSearchSubmit}
-            className="bg-white border border-[#EAE5DC] rounded-2xl p-2.5 flex items-center gap-3 shadow-md"
-          >
-            <Search className="w-4 h-4 text-stone-400 shrink-0 ml-2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search dining suites, modular sofas, 4K TVs, consoles in Umuahia..."
-              className="flex-1 text-xs sm:text-sm bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-stone-400 text-stone-900"
-              autoFocus
-            />
+        {/* Mobile Full-Width Search Bar */}
+        <div className="mt-3 lg:hidden">
+          <form onSubmit={handleSearchSubmit} className="flex items-center">
+            <div className="relative w-full flex items-center">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search sofas, dining tables, chairs, TVs..."
+                className="w-full pl-3.5 pr-8 py-2 bg-slate-50 border-2 border-slate-200 border-r-0 rounded-l-lg text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-amber-600 focus:bg-white"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 text-slate-400 hover:text-slate-600 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
             <button
               type="submit"
-              className="px-4 py-1.5 bg-[#B58235] text-white text-xs font-semibold rounded-full hover:bg-[#9E6F2B] transition-colors cursor-pointer"
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs rounded-r-lg border-2 border-amber-600 flex items-center gap-1.5 shrink-0"
+              aria-label="Search"
             >
-              Search
-            </button>
-            <button
-              type="button"
-              onClick={() => setSearchOpen(false)}
-              className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
+              <Search className="w-3.5 h-3.5" />
+              <span>Search</span>
             </button>
           </form>
         </div>
-      )}
+      </div>
 
-      {/* Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white/95 backdrop-blur-lg border border-[#EAE5DC] rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in slide-in-from-top-2">
-          <div className="flex flex-col space-y-1">
-            {navLinks.map((link) => (
+      {/* 3. DESKTOP MARKETPLACE CATEGORY STRIP */}
+      <nav className="hidden lg:block bg-white border-b border-slate-200 text-xs font-semibold text-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handleNav('/shop')}
+              className="flex items-center gap-2 py-2.5 px-3 bg-slate-900 text-white rounded-t-md hover:bg-slate-800 transition-colors cursor-pointer mr-2"
+            >
+              <Layers className="w-3.5 h-3.5 text-amber-400" />
+              <span>All Categories</span>
+            </button>
+
+            {categoryRibbon.map((item) => (
               <button
-                key={link.path}
-                onClick={() => handleNav(link.path)}
-                className={`text-left text-sm font-semibold py-3 px-3 rounded-xl transition-colors cursor-pointer ${
-                  currentPath === link.path
-                    ? 'bg-[#FDF8EE] text-[#B58235] font-bold'
-                    : 'text-stone-800 hover:bg-stone-50'
+                key={item.label}
+                onClick={() => handleNav(item.path)}
+                className={`py-2.5 px-3 hover:text-amber-600 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                  item.isDeal
+                    ? 'text-amber-700 font-bold'
+                    : 'text-slate-700'
                 }`}
               >
-                {link.label}
+                {item.isDeal && <Flame className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />}
+                <span>{item.label}</span>
               </button>
             ))}
-            <button
-              onClick={() => handleNav('/admin')}
-              className="text-left text-sm font-semibold py-3 px-3 rounded-xl text-stone-600 hover:bg-stone-50 flex items-center gap-2 cursor-pointer"
-            >
-              <Shield className="w-4 h-4 text-stone-500" />
-              <span>Admin Management</span>
-            </button>
           </div>
 
-          <div className="pt-4 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-            <span>Umuahia, Abia State</span>
-            <a
-              href="tel:+2348031234567"
-              className="font-semibold text-[#B58235] flex items-center gap-1"
+          <div className="flex items-center gap-4 text-[11px] text-slate-500 font-medium">
+            <button
+              onClick={() => handleNav('/about')}
+              className="hover:text-slate-900 transition-colors"
             >
-              <Phone className="w-3.5 h-3.5" />
-              <span>Call Showroom</span>
-            </a>
+              About Brand
+            </button>
+            <span>·</span>
+            <button
+              onClick={() => handleNav('/contact')}
+              className="hover:text-slate-900 transition-colors"
+            >
+              Showroom Location
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* 4. MOBILE SLIDE-OUT DRAWER */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+          />
+
+          {/* Drawer Content */}
+          <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {/* Drawer Header in Charcoal Navy */}
+            <div className="p-4 bg-[#0F172A] text-white flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-sm">
+                  F
+                </div>
+                <div>
+                  <span className="font-bold text-base">Frankman Furnitures</span>
+                  <span className="block text-[10px] text-slate-400">Nigeria Showroom</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-slate-300 hover:text-white p-1 cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Category Navigation Links */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                  Marketplace Categories
+                </p>
+                <div className="space-y-1">
+                  {categoryRibbon.map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => handleNav(item.path)}
+                      className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100 hover:text-amber-700 transition-colors flex items-center justify-between"
+                    >
+                      <span>{item.label}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                  Customer Support &amp; Portal
+                </p>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => handleNav('/about')}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-100"
+                  >
+                    About Frankman
+                  </button>
+                  <button
+                    onClick={() => handleNav('/contact')}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 hover:bg-slate-100"
+                  >
+                    Showroom Address &amp; Delivery
+                  </button>
+                  <button
+                    onClick={() => handleNav('/admin')}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 flex items-center gap-1.5"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Admin Workspace Portal</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Contact info in Drawer */}
+              <div className="p-3 bg-slate-50 rounded-lg text-xs text-slate-600 space-y-1.5">
+                <p className="font-semibold text-slate-800">Umuahia Showroom Hub:</p>
+                <p className="text-[11px]">14 Aba Road, Umuahia, Abia State</p>
+                <p className="text-[11px] text-amber-700 font-medium">Hotline: +234 803 123 4567</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

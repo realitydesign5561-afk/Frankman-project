@@ -577,7 +577,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 px-6 bg-[#B58235] hover:bg-[#9E6F2B] disabled:bg-stone-300 text-white rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer min-h-[50px]"
+              className="w-full py-4 px-6 bg-amber-600 hover:bg-amber-700 disabled:bg-slate-300 text-white rounded-lg text-xs sm:text-sm font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer min-h-[50px]"
             >
               <span>
                 {isSubmitting

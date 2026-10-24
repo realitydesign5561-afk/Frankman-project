@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Product } from '../types';
 import { ProductCard } from '../components/products/ProductCard';
-import { Search, X, RotateCcw } from 'lucide-react';
+import { Search, X, RotateCcw, Filter, Flame } from 'lucide-react';
 import { clientStore } from '../lib/client-store';
 
 interface ShopPageProps {
-  initialCategory?: 'furniture' | 'electronics';
+  initialCategory?: string;
   onNavigate: (path: string) => void;
 }
 
@@ -13,18 +13,33 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check URL search params for category / search / deals
+  const getUrlParams = () => {
+    if (typeof window === 'undefined') return { category: 'all', search: '', deals: false };
+    const params = new URLSearchParams(window.location.search);
+    return {
+      category: params.get('category') || initialCategory || 'all',
+      search: params.get('search') || '',
+      deals: params.get('deals') === 'true',
+    };
+  };
+
+  const initialParams = getUrlParams();
+
   // Filter state
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialParams.category);
+  const [searchQuery, setSearchQuery] = useState(initialParams.search);
   const [sortBy, setSortBy] = useState<'featured' | 'newest' | 'price-asc' | 'price-desc'>('featured');
   const [maxPriceNaira, setMaxPriceNaira] = useState<number>(1000000);
   const [inStockOnly, setInStockOnly] = useState(false);
+  const [dealsOnly, setDealsOnly] = useState(initialParams.deals);
 
   useEffect(() => {
-    if (initialCategory) {
-      setSelectedCategory(initialCategory);
-    }
-  }, [initialCategory]);
+    const current = getUrlParams();
+    setSelectedCategory(current.category);
+    if (current.search) setSearchQuery(current.search);
+    if (current.deals) setDealsOnly(true);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -60,19 +75,47 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
       .catch(() => {
         // Fallback to clientStore
         let list = clientStore.getProducts();
+
         if (selectedCategory === 'furniture') {
           list = list.filter((p) => p.categoryId === 'cat-furniture');
         } else if (selectedCategory === 'electronics') {
           list = list.filter((p) => p.categoryId === 'cat-electronics');
+        } else if (selectedCategory === 'living') {
+          list = list.filter((p) => p.slug.includes('sofa') || p.slug.includes('chair') || p.slug.includes('lounge'));
+        } else if (selectedCategory === 'dining') {
+          list = list.filter((p) => p.slug.includes('dining'));
+        } else if (selectedCategory === 'bedroom') {
+          list = list.filter((p) => p.slug.includes('bed'));
+        } else if (selectedCategory === 'office') {
+          list = list.filter((p) => p.slug.includes('office') || p.slug.includes('chair'));
+        } else if (selectedCategory === 'consoles') {
+          list = list.filter((p) => p.slug.includes('console'));
         }
+
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
-          list = list.filter((p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+          list = list.filter(
+            (p) =>
+              p.name.toLowerCase().includes(q) ||
+              p.description.toLowerCase().includes(q) ||
+              (p.shortDescription && p.shortDescription.toLowerCase().includes(q))
+          );
         }
+
+        if (inStockOnly) {
+          list = list.filter((p) => p.variations.some((v) => v.stockCount > 0));
+        }
+
+        if (sortBy === 'price-asc') {
+          list.sort((a, b) => a.basePriceKobo - b.basePriceKobo);
+        } else if (sortBy === 'price-desc') {
+          list.sort((a, b) => b.basePriceKobo - a.basePriceKobo);
+        }
+
         setProducts(list);
       })
       .finally(() => setLoading(false));
-  }, [selectedCategory, searchQuery, sortBy, maxPriceNaira, inStockOnly]);
+  }, [selectedCategory, searchQuery, sortBy, maxPriceNaira, inStockOnly, dealsOnly]);
 
   const resetFilters = () => {
     setSelectedCategory('all');
@@ -80,122 +123,108 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
     setSortBy('featured');
     setMaxPriceNaira(1000000);
     setInStockOnly(false);
+    setDealsOnly(false);
   };
 
-  const hasActiveFilters =
-    selectedCategory !== 'all' ||
-    searchQuery.trim() !== '' ||
-    sortBy !== 'featured' ||
-    maxPriceNaira < 1000000 ||
-    inStockOnly;
+  const categoryTabs = [
+    { id: 'all', label: 'All Catalog' },
+    { id: 'living', label: 'Living Room' },
+    { id: 'dining', label: 'Dining Sets' },
+    { id: 'bedroom', label: 'Bedroom' },
+    { id: 'office', label: 'Office' },
+    { id: 'consoles', label: 'TV Consoles' },
+    { id: 'electronics', label: 'Electronics' },
+  ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 bg-[#FAF8F5]">
-      {/* Title & Collection Banner */}
-      <div className="border-b border-[#EAE5DC] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 bg-[#F8FAFC]">
+      {/* Page Title & Breadcrumb */}
+      <div className="bg-white rounded-lg border border-slate-200/90 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-            Frankman Showroom Catalog
+          <span className="text-[11px] uppercase tracking-widest font-bold text-amber-600">
+            Showroom Marketplace
           </span>
-          <h1 className="font-heading font-bold text-3xl sm:text-4xl text-stone-900 mt-1">
-            {selectedCategory === 'furniture'
-              ? 'Furniture Collection'
+          <h1 className="font-bold text-2xl sm:text-3xl text-[#0F172A] mt-1">
+            {selectedCategory === 'living'
+              ? 'Living Room & Sofas'
+              : selectedCategory === 'dining'
+              ? 'Solid Timber Dining Suites'
+              : selectedCategory === 'bedroom'
+              ? 'Bedroom Furniture & Bedframes'
+              : selectedCategory === 'office'
+              ? 'Executive Office & Workspaces'
+              : selectedCategory === 'consoles'
+              ? 'Acoustic TV & Media Consoles'
               : selectedCategory === 'electronics'
-              ? 'Electronics Collection'
-              : 'All Showroom Products'}
+              ? 'Smart Home Electronics'
+              : 'Showroom Catalog'}
           </h1>
-          <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Handcrafted pieces and home electronics available in Umuahia, Abia State.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Direct delivery to residences &amp; corporate offices across Nigeria. Paystack verified.
           </p>
         </div>
 
-        {/* Category Pill Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-          <button
-            onClick={() => {
-              setSelectedCategory('all');
-              onNavigate('/shop');
-            }}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
-              selectedCategory === 'all'
-                ? 'bg-[#B58235] text-white shadow-xs'
-                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
-            }`}
-          >
-            All Products
-          </button>
-          <button
-            onClick={() => {
-              setSelectedCategory('furniture');
-              onNavigate('/shop/furniture');
-            }}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
-              selectedCategory === 'furniture'
-                ? 'bg-[#B58235] text-white shadow-xs'
-                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
-            }`}
-          >
-            Furniture
-          </button>
-          <button
-            onClick={() => {
-              setSelectedCategory('electronics');
-              onNavigate('/shop/electronics');
-            }}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
-              selectedCategory === 'electronics'
-                ? 'bg-[#B58235] text-white shadow-xs'
-                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
-            }`}
-          >
-            Electronics
-          </button>
+        {/* Quick Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          {categoryTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setSelectedCategory(tab.id)}
+              className={`px-3.5 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                selectedCategory === tab.id
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#EAE5DC] p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-lg border border-slate-200/90 p-3.5 sm:p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, finish, or specs..."
-            className="w-full text-xs sm:text-sm bg-[#FAF8F5] border border-[#EAE5DC] rounded-full pl-9 pr-3.5 py-2.5 text-stone-900 focus:bg-white focus:outline-none focus:border-[#B58235] transition-colors"
+            placeholder="Search by piece, wood, finish, or specs..."
+            className="w-full text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-md pl-9 pr-8 py-2 text-slate-900 focus:bg-white focus:outline-none focus:border-amber-600 transition-colors"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Controls: Sort & In-Stock */}
+        {/* Controls: In-Stock, Sort, Reset */}
         <div className="w-full md:w-auto flex flex-wrap items-center justify-between md:justify-end gap-3 text-xs">
-          <label className="flex items-center gap-2 font-semibold text-stone-700 cursor-pointer select-none">
+          <label className="flex items-center gap-2 font-medium text-slate-700 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded-md border-stone-300 text-[#B58235] focus:ring-[#B58235] h-4 w-4"
+              className="rounded border-slate-300 text-amber-600 focus:ring-amber-500 h-4 w-4"
             />
             <span>In Stock Only</span>
           </label>
 
-          <span className="text-stone-300 hidden sm:inline">|</span>
+          <span className="text-slate-200 hidden sm:inline">|</span>
 
           {/* Sort Selector */}
-          <div className="flex items-center gap-1.5 text-stone-600">
-            <span className="font-semibold">Sort:</span>
+          <div className="flex items-center gap-1.5 text-slate-600">
+            <span className="font-semibold text-slate-700">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-[#FAF8F5] border border-[#EAE5DC] rounded-full px-3 py-1.5 text-stone-900 focus:outline-none focus:border-[#B58235] font-medium cursor-pointer"
+              className="bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5 text-slate-900 focus:outline-none focus:border-amber-600 font-medium cursor-pointer"
             >
               <option value="featured">Featured First</option>
               <option value="newest">Newest Arrivals</option>
@@ -204,10 +233,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
             </select>
           </div>
 
-          {hasActiveFilters && (
+          {(selectedCategory !== 'all' || searchQuery || inStockOnly) && (
             <button
               onClick={resetFilters}
-              className="text-[#B58235] hover:text-[#9E6F2B] font-semibold flex items-center gap-1 transition-colors px-2 py-1 cursor-pointer"
+              className="text-amber-700 hover:text-amber-800 font-semibold flex items-center gap-1 transition-colors px-2 py-1 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
@@ -216,43 +245,44 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="text-xs text-stone-500 font-medium">
-        Showing <span className="font-bold text-stone-900">{products.length}</span> pieces
+      {/* Results Count Banner */}
+      <div className="text-xs text-slate-500 font-medium px-1">
+        Showing <span className="font-bold text-slate-900">{products.length}</span> pieces
       </div>
 
-      {/* Product Grid */}
+      {/* Product Grid: 2 columns on mobile, 4 on desktop */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
-              className="h-96 rounded-3xl bg-stone-100 animate-pulse border border-[#EAE5DC]"
+              className="aspect-4/5 rounded-lg bg-slate-200 animate-pulse"
             />
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-[#EAE5DC] p-8 space-y-3">
-          <h3 className="font-heading text-lg font-bold text-stone-900">
-            No products match your current filters
+        <div className="text-center py-16 bg-white rounded-lg border border-slate-200 p-8 space-y-3">
+          <h3 className="font-bold text-lg text-slate-900">
+            No products match your current selection
           </h3>
-          <p className="text-xs text-stone-500 max-w-md mx-auto">
-            Try adjusting keywords or selecting another collection.
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
+            Try adjusting your search query or selecting another room category.
           </p>
           <button
             onClick={resetFilters}
-            className="px-5 py-2.5 bg-[#B58235] text-white text-xs font-semibold rounded-full hover:bg-[#9E6F2B] transition-colors cursor-pointer"
+            className="px-5 py-2.5 bg-amber-600 text-white text-xs font-semibold rounded-md hover:bg-amber-700 transition-colors cursor-pointer"
           >
             Clear Filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
               onNavigate={onNavigate}
+              discountPercent={15}
             />
           ))}
         </div>

@@ -176,30 +176,30 @@ export const CartDrawer: React.FC<{ onNavigate?: (path: string) => void }> = ({ 
 
           {/* Footer actions */}
           {items.length > 0 && (
-            <div className="p-6 border-t border-stone-200 bg-[#FAF9F5] space-y-3">
+            <div className="p-6 border-t border-slate-200 bg-slate-50 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-stone-600 font-medium">Subtotal</span>
-                <span className="font-extrabold text-stone-900 text-lg tabular-nums">
+                <span className="text-slate-600 font-medium">Subtotal</span>
+                <span className="font-extrabold text-slate-900 text-lg tabular-nums">
                   {formatNaira(subtotalKobo)}
                 </span>
               </div>
-              <p className="text-[11px] text-stone-500">
+              <p className="text-[11px] text-slate-500">
                 Paystack cards, transfer, and discounts calculated at checkout.
               </p>
 
               <button
                 onClick={() => handleLinkClick('/checkout')}
-                className="w-full py-3.5 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-colors min-h-[46px] cursor-pointer"
+                className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-xs transition-colors min-h-[46px] cursor-pointer"
               >
-                <span>Proceed to Checkout</span>
+                <span>Proceed to Paystack Checkout</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <button
                 onClick={() => handleLinkClick('/cart')}
-                className="w-full py-2.5 border border-stone-300 hover:border-stone-400 bg-white text-stone-800 rounded-full text-xs font-bold transition-colors min-h-[42px]"
+                className="w-full py-2.5 border border-slate-300 hover:border-slate-400 bg-white text-slate-800 rounded-lg text-xs font-semibold transition-colors min-h-[42px]"
               >
-                View Full Bag Details
+                View Cart Summary
               </button>
             </div>
           )}

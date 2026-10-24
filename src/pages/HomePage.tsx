@@ -1,27 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Product } from '../types';
-import { SafeImage } from '../components/ui/SafeImage';
-import { formatNaira } from '../lib/pricing';
-import { useCartStore } from '../store/cart-store';
+import { ProductCard } from '../components/products/ProductCard';
 import { clientStore } from '../lib/client-store';
 import {
-  ArrowUpRight,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Sparkles,
   ShoppingBag,
   ShieldCheck,
   Truck,
-  CreditCard,
-  CheckCircle2,
+  RotateCcw,
   Star,
   Tv,
   Armchair,
-  MessageCircle,
-  Play,
-  Heart,
-  Headphones,
+  Utensils,
+  Briefcase,
+  Flame,
+  Clock,
+  CheckCircle2,
+  Phone,
+  Bed,
+  Layers,
+  Award,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -33,566 +36,682 @@ export const HomePage: React.FC<HomePageProps> = ({
   onNavigate,
   whatsappNumber = '+2348031234567',
 }) => {
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>(() => clientStore.getProducts());
+  const [products, setProducts] = useState<Product[]>(() => clientStore.getProducts());
   const [loading, setLoading] = useState(true);
-  const [activeCollectionTab, setActiveCollectionTab] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  const { addItem } = useCartStore();
+  // Minimalist Flash Deals Countdown Timer (8 hours from now)
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 8,
+    minutes: 42,
+    seconds: 19,
+  });
 
+  const scrollTrackRef = useRef<HTMLDivElement>(null);
+
+  // Carousel lifestyle slides
+  const carouselSlides = [
+    {
+      id: 'slide-1',
+      title: 'Modern Living, Timeless Comfort',
+      subtitle: 'Handcrafted kiln-dried hardwood sofas & plush bouclé sectionals built for distinguished Nigerian homes.',
+      tag: 'NEW 2026 COLLECTION',
+      cta: 'Explore Living Room',
+      path: '/shop?category=living',
+      image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=80',
+    },
+    {
+      id: 'slide-2',
+      title: 'Solid Hardwood Dining Suites',
+      subtitle: 'Heirloom solid oak & walnut dining sets with polyurethane scratch defense and cushioned ergonomic seating.',
+      tag: 'DIRECT SHOWROOM PIECES',
+      cta: 'Explore Dining Suites',
+      path: '/shop?category=dining',
+      image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1600&q=80',
+    },
+    {
+      id: 'slide-3',
+      title: 'Executive Ergonomic Workspaces',
+      subtitle: 'High-tensile Korean mesh, dynamic lumbar arch, and solid executive desks designed for all-day focus.',
+      tag: 'OFFICE & PRODUCTIVITY',
+      cta: 'Shop Office Furniture',
+      path: '/shop?category=office',
+      image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=80',
+    },
+    {
+      id: 'slide-4',
+      title: 'Cinematic Entertainment & Cooling',
+      subtitle: 'Generator-friendly 4K smart TVs, inverter multi-airflow refrigeration, and fluted media consoles.',
+      tag: 'SMART HOME APPLIANCES',
+      cta: 'Browse Electronics',
+      path: '/shop/electronics',
+      image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
+    },
+  ];
+
+  // Auto-play carousel
   useEffect(() => {
-    fetch('/api/products?sortBy=featured&limit=12')
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [carouselSlides.length]);
+
+  // Countdown timer tick
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        } else {
+          return { hours: 12, minutes: 0, seconds: 0 };
+        }
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch products
+  useEffect(() => {
+    fetch('/api/products?limit=24')
       .then((res) => {
         if (!res.ok) throw new Error('API non-200');
         return res.json();
       })
       .then((data) => {
         if (data.products && data.products.length > 0) {
-          setFeaturedProducts(data.products);
+          setProducts(data.products);
         }
       })
       .catch(() => {
-        // Fallback to clientStore for offline/Vercel resilience
-        setFeaturedProducts(clientStore.getProducts());
+        setProducts(clientStore.getProducts());
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const collectionTabs = [
-    { id: 'all', label: 'All Collections' },
-    { id: 'living', label: 'Chairs & Sofas' },
-    { id: 'dining', label: 'Dining Suites' },
-    { id: 'consoles', label: 'TV & Consoles' },
-    { id: 'electronics', label: 'Smart Electronics' },
-  ];
-
-  const filteredProducts = featuredProducts.filter((p) => {
-    if (activeCollectionTab === 'all') return true;
-    if (activeCollectionTab === 'living') return p.categoryId === 'cat-furniture' && (p.slug.includes('sofa') || p.slug.includes('chair'));
-    if (activeCollectionTab === 'dining') return p.categoryId === 'cat-furniture' && p.slug.includes('dining');
-    if (activeCollectionTab === 'consoles') return p.categoryId === 'cat-furniture' && p.slug.includes('console');
-    if (activeCollectionTab === 'electronics') return p.categoryId === 'cat-electronics';
+  // Filter products by tab
+  const filteredProducts = products.filter((p) => {
+    if (activeTab === 'all') return true;
+    if (activeTab === 'living') {
+      return (
+        p.slug.includes('sofa') ||
+        p.slug.includes('chair') ||
+        p.slug.includes('lounge') ||
+        p.name.toLowerCase().includes('chair')
+      );
+    }
+    if (activeTab === 'dining') return p.slug.includes('dining');
+    if (activeTab === 'bedroom') return p.slug.includes('bed');
+    if (activeTab === 'office') {
+      return (
+        p.slug.includes('office') ||
+        p.slug.includes('chair') ||
+        p.name.toLowerCase().includes('office')
+      );
+    }
+    if (activeTab === 'electronics') return p.categoryId === 'cat-electronics';
     return true;
   });
 
+  const scrollTrack = (direction: 'left' | 'right') => {
+    if (scrollTrackRef.current) {
+      const scrollAmount = 340;
+      scrollTrackRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const categories = [
+    { label: 'Living Room & Sofas', icon: Armchair, path: '/shop?category=living' },
+    { label: 'Dining Suites', icon: Utensils, path: '/shop?category=dining' },
+    { label: 'Bedroom Furniture', icon: Bed, path: '/shop?category=bedroom' },
+    { label: 'Office & Workspaces', icon: Briefcase, path: '/shop?category=office' },
+    { label: 'TV & Media Consoles', icon: Tv, path: '/shop?category=consoles' },
+    { label: 'Smart Electronics', icon: Sparkles, path: '/shop/electronics' },
+    { label: 'Decor & Accent Lighting', icon: Layers, path: '/shop?category=decor' },
+  ];
+
   const faqs = [
     {
-      q: 'Where is Frankman Furniture & Electronics located in Umuahia?',
-      a: 'Our physical showroom is conveniently situated at 14 Aba Road / City Center, Umuahia, Abia State, Nigeria. We welcome visits Monday through Saturday from 8:30 AM to 6:30 PM for personal furniture inspection, fabric selections, and live electronics demonstrations.',
+      q: 'Do you deliver across Ibadan, Lagos, and other states in Nigeria?',
+      a: 'Yes! We provide guaranteed door-to-door transit across Ibadan, Lagos, Umuahia, Aba, Port Harcourt, Owerri, Enugu, Asaba, and Abuja. Orders above ₦200,000 enjoy free subsidized delivery with full protective blanket wrapping and setup assistance.',
     },
     {
-      q: 'How does the Paystack payment work (Card, Bank Transfer, USSD)?',
-      a: 'We have integrated Paystack directly into checkout. You can securely pay with any Nigerian debit card (Mastercard, Visa, Verve), instant Bank Transfer to a dedicated virtual account (Wema Bank/Titan Trust), USSD banking code (*737#, *901#), or online banking.',
+      q: 'How does the Paystack payment gateway work for card and bank transfer?',
+      a: 'Paystack is natively integrated into our checkout. You can complete your order using any Nigerian Debit Card (Mastercard, Visa, Verve), instant Bank Transfer to a dedicated checkout account, or banking USSD codes. Your transaction is 100% encrypted and confirmed in seconds.',
     },
     {
-      q: 'Do you deliver to new properties, duplexes, and estates across Nigeria?',
-      a: 'Yes! We specialize in residential and commercial property furnishing. Within Umuahia, we deliver within 24–48 hours with our dedicated setup team. We also arrange secured door-to-door transit to Aba, Owerri, Port Harcourt, Enugu, Asaba, Lagos, and Abuja with protective blanket padding.',
+      q: 'What is your timber treatment and termite protection guarantee?',
+      a: 'All Frankman timber is kiln-dried to less than 12% moisture content to prevent twisting or cracking. We apply non-toxic deep organic wood preservatives that permanently repel termites and wood-boring insects, backed by a 3-year structural integrity guarantee.',
     },
     {
-      q: 'What is your timber seasoning and anti-termite guarantee?',
-      a: 'Every timber piece is kiln-dried and treated with high-grade organic preservatives that repel wood boring insects and termites. Our structural hardwood frames carry a multi-year structural integrity guarantee.',
-    },
-    {
-      q: 'Are your electronics generator-friendly and protected from voltage surges?',
-      a: 'Yes! All Frankman televisions, inverter refrigerators, and audio systems are selected specifically for Nigerian electrical realities. They feature wide-voltage operation (135V–290V) and low power consumption suitable for home generators and solar inverter systems.',
+      q: 'Are your smart televisions and refrigerators generator-friendly?',
+      a: 'Absolutely. Every appliance in our showroom is selected specifically for Nigerian power realities. They feature wide-voltage operation (135V–290V), low wattage start-up currents compatible with residential solar inverters and small gasoline generators.',
     },
   ];
-
-  const testimonials = [
-    {
-      name: 'Dr. Emeka Nwosu',
-      role: 'Homeowner, World Bank Housing Estate, Umuahia',
-      comment:
-        'Frankman furnished our entire 5-bedroom duplex in Umuahia. The solid oak dining set and ergonomic modular sofa exceeded expectations. Prompt delivery and courteous installation team.',
-      rating: 5,
-    },
-    {
-      name: 'Arc. Chioma Adebayo',
-      role: 'Principal Interior Architect, Port Harcourt',
-      comment:
-        'As an architect designing modern residences across the South-East and Rivers State, I recommend Frankman for custom finishes. Their timber is truly kiln-dried with zero warping or pest issues.',
-      rating: 5,
-    },
-    {
-      name: 'Chief Kenneth Okoli',
-      role: 'Property Investor, Aba Commercial District',
-      comment:
-        'The inverter double-door refrigerator and 65-inch 4K TV run effortlessly on our solar inverter. The online Paystack checkout made bank transfer instant and straightforward.',
-      rating: 5,
-    },
-  ];
-
-  const cleanWhatsappPhone = whatsappNumber.replace(/[^0-9]/g, '');
-  const heroWhatsappUrl = `https://wa.me/${cleanWhatsappPhone}?text=${encodeURIComponent(
-    'Hello Frankman Furniture & Electronics, I am contacting you from your showroom website regarding property furnishing and electronics inquiry in Umuahia.'
-  )}`;
 
   return (
-    <div className="space-y-16 sm:space-y-24 pb-16 bg-[#FAF8F5]">
-      {/* 1. HERO SECTION (Matching exact Névo design with editorial serif & warm gold palette) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left Column: Typography, CTAs & Social Proof */}
-          <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Kicker Tracker */}
-            <div className="inline-flex items-center gap-2">
-              <span className="text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase text-[#B58235]">
-                MODERN LIVING, TIMELESS COMFORT
-              </span>
-            </div>
-
-            {/* Editorial Serif Headline */}
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl text-stone-900 leading-[1.12] tracking-tight">
-              Design Your Space For A Better <span className="italic text-[#B58235]">Tomorrow</span>
-            </h1>
-
-            {/* Subtitle Prose */}
-            <p className="text-sm sm:text-base text-stone-600 max-w-xl font-normal leading-relaxed">
-              Nigeria's premier destination for handcrafted kiln-dried hardwood furniture, smart 4K TVs, and inverter electronics. Tailored for distinguished homes and estates in Umuahia and nationwide.
-            </p>
-
-            {/* CTAs matching the Névo pill button */}
-            <div className="pt-2 flex flex-wrap items-center gap-3.5">
-              {/* Primary Shop Now Pill */}
-              <button
-                onClick={() => onNavigate('/shop')}
-                className="inline-flex items-center gap-3 px-6 py-3.5 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs sm:text-sm font-semibold tracking-wide shadow-sm transition-all transform hover:-translate-y-0.5 cursor-pointer min-h-[48px]"
-              >
-                <span>Shop Now</span>
-                <div className="w-6 h-6 rounded-full bg-white text-[#B58235] flex items-center justify-center">
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+    <div className="space-y-10 sm:space-y-12 pb-16 bg-[#F8FAFC]">
+      {/* 1. HERO SECTION (Marketplace 3-Column Desktop Architecture) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-stretch">
+          {/* Left Column (20% width on Desktop): Vertical Category Menu */}
+          <div className="hidden lg:block lg:col-span-3 xl:col-span-3">
+            <div className="bg-white rounded-lg border border-slate-200/90 shadow-xs p-3 h-full flex flex-col justify-between">
+              <div>
+                <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-amber-600" />
+                    Categories
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">Showroom</span>
                 </div>
-              </button>
 
-              {/* Secondary WhatsApp Showroom Tour Button */}
-              <a
-                href={heroWhatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-5 py-3.5 bg-white hover:bg-stone-50 text-stone-800 border border-[#EAE5DC] rounded-full text-xs sm:text-sm font-semibold shadow-2xs transition-all min-h-[48px]"
-              >
-                <div className="w-6 h-6 rounded-full bg-[#25D366]/10 text-[#25D366] flex items-center justify-center">
-                  <MessageCircle className="w-3.5 h-3.5" />
+                <div className="mt-2 space-y-1">
+                  {categories.map((cat) => {
+                    const IconComponent = cat.icon;
+                    return (
+                      <button
+                        key={cat.label}
+                        onClick={() => onNavigate(cat.path)}
+                        className="w-full text-left px-3 py-2.5 rounded-md text-xs font-medium text-[#0F172A] hover:text-amber-600 hover:bg-slate-100 transition-colors flex items-center justify-between group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <IconComponent className="w-4 h-4 text-slate-500 group-hover:text-amber-600 transition-colors shrink-0" />
+                          <span className="truncate">{cat.label}</span>
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </button>
+                    );
+                  })}
                 </div>
-                <span>WhatsApp Desk</span>
-              </a>
-            </div>
-
-            {/* Social Proof Avatar Stack & 4.9/5 Rating */}
-            <div className="pt-4 flex items-center gap-4 border-t border-[#EAE5DC]/80">
-              <div className="flex -space-x-2.5 overflow-hidden">
-                <img
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-                  alt="Customer avatar"
-                />
-                <img
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
-                  alt="Customer avatar"
-                />
-                <img
-                  className="inline-block h-9 w-9 rounded-full ring-2 ring-white object-cover"
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
-                  alt="Customer avatar"
-                />
               </div>
 
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5">
-                  <div className="flex text-amber-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <span className="text-xs font-bold text-stone-900">4.9/5.0</span>
+              {/* Bottom Quick Help Card in Left Column */}
+              <div className="mt-4 p-3 bg-slate-50 border border-slate-200/70 rounded-md text-xs space-y-1.5">
+                <div className="flex items-center gap-1.5 text-slate-900 font-bold text-[11px]">
+                  <Phone className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Showroom Advisory</span>
                 </div>
-                <p className="text-[11px] text-stone-500 font-medium">
-                  450+ Verified Reviews from Nigerian homeowners
+                <p className="text-[11px] text-slate-500 leading-snug">
+                  Need custom dimensions or bulk property fitouts?
+                </p>
+                <a
+                  href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                    'Hello Frankman Furnitures, I need custom furnishing advice.'
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 hover:text-amber-700"
+                >
+                  <span>Chat on WhatsApp</span>
+                  <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Column (60% width on Desktop): Large Auto-Playing Carousel */}
+          <div className="lg:col-span-6 xl:col-span-6">
+            <div className="relative aspect-16/10 sm:aspect-16/9 lg:aspect-auto lg:h-[430px] rounded-lg overflow-hidden shadow-xs border border-slate-200/90 group bg-slate-900">
+              {carouselSlides.map((slide, idx) => (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    idx === currentSlide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+                  }`}
+                >
+                  {/* Background Image */}
+                  <img
+                    src={slide.image}
+                    alt={slide.title}
+                    className="w-full h-full object-cover"
+                  />
+
+                  {/* Gradient Overlay for Readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/40 to-transparent sm:bg-gradient-to-r sm:from-slate-950/90 sm:via-slate-950/50 sm:to-transparent" />
+
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end sm:justify-center p-5 sm:p-8 max-w-lg space-y-2 sm:space-y-3 z-20 text-white">
+                    <span className="inline-block bg-amber-600 text-white text-[10px] sm:text-xs font-extrabold uppercase tracking-widest px-2.5 py-1 rounded w-fit shadow-xs">
+                      {slide.tag}
+                    </span>
+
+                    <h1 className="text-xl sm:text-3xl font-extrabold text-white leading-tight tracking-tight drop-shadow-xs">
+                      {slide.title}
+                    </h1>
+
+                    <p className="text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed drop-shadow-xs">
+                      {slide.subtitle}
+                    </p>
+
+                    <div className="pt-2">
+                      <button
+                        onClick={() => onNavigate(slide.path)}
+                        className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold rounded-md shadow-md transition-all flex items-center gap-2 cursor-pointer w-fit active:scale-95"
+                      >
+                        <span>{slide.cta}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Carousel Arrows */}
+              <button
+                onClick={() =>
+                  setCurrentSlide((prev) =>
+                    prev === 0 ? carouselSlides.length - 1 : prev - 1
+                  )
+                }
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-900 shadow-md flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() =>
+                  setCurrentSlide((prev) => (prev + 1) % carouselSlides.length)
+                }
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-900 shadow-md flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+
+              {/* Dots Indicators */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+                {carouselSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      idx === currentSlide
+                        ? 'w-6 bg-amber-500'
+                        : 'w-2 bg-white/50 hover:bg-white'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column (20% width on Desktop): Two Stacked Promotional Banners */}
+          <div className="hidden lg:flex lg:col-span-3 xl:col-span-3 flex-col gap-4">
+            {/* Promo Banner 1: New Arrivals */}
+            <div
+              onClick={() => onNavigate('/shop?category=living')}
+              className="group relative flex-1 rounded-lg overflow-hidden border border-slate-200/90 shadow-xs cursor-pointer bg-slate-900 p-4 flex flex-col justify-between"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"
+                alt="New Arrivals"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60"
+              />
+              <div className="relative z-10 flex flex-col justify-between h-full space-y-2">
+                <span className="bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5 rounded w-fit uppercase tracking-wider">
+                  New Arrivals
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-white leading-tight">
+                    Artisan Hardwood &amp; Velvets
+                  </h3>
+                  <p className="text-xs text-amber-200 font-medium mt-1">
+                    Up to 15% Off Introductory Sets
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-white group-hover:text-amber-300 transition-colors pt-1">
+                  <span>Shop Showcase</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Promo Banner 2: Office Collections */}
+            <div
+              onClick={() => onNavigate('/shop?category=office')}
+              className="group relative flex-1 rounded-lg overflow-hidden border border-slate-200/90 shadow-xs cursor-pointer bg-slate-900 p-4 flex flex-col justify-between"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1580481077195-c3a82104e362?auto=format&fit=crop&w=800&q=80"
+                alt="Office Collections"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-60"
+              />
+              <div className="relative z-10 flex flex-col justify-between h-full space-y-2">
+                <span className="bg-[#0F172A] text-amber-400 border border-amber-400/40 text-[10px] font-bold px-2 py-0.5 rounded w-fit uppercase tracking-wider">
+                  Office Suites
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-white leading-tight">
+                    Executive Ergonomics
+                  </h3>
+                  <p className="text-xs text-slate-200 mt-1">
+                    From ₦185,000 · Direct Delivery
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-bold text-white group-hover:text-amber-300 transition-colors pt-1">
+                  <span>Explore Workspaces</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. FLASH DEALS / TRENDING SECTION (Horizontal Scrolling with Minimalist Timer) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg border border-slate-200/90 shadow-xs p-4 sm:p-6 space-y-5">
+          {/* Section Header: Bold Charcoal Navy title & Minimalist Countdown Timer */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Flame className="w-5 h-5 fill-current" />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-[#0F172A] leading-tight">
+                  Trending Collections
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Best-selling furniture suites &amp; appliances with promotional pricing
                 </p>
               </div>
             </div>
+
+            {/* Minimalist Countdown Timer on the Right Side */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                <span className="hidden sm:inline uppercase tracking-wider text-[11px] text-slate-400">
+                  Deals End In:
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-xs font-mono font-bold">
+                <span className="bg-[#0F172A] text-white px-2 py-1 rounded shadow-2xs">
+                  {String(timeLeft.hours).padStart(2, '0')}h
+                </span>
+                <span className="text-slate-400 font-bold">:</span>
+                <span className="bg-[#0F172A] text-white px-2 py-1 rounded shadow-2xs">
+                  {String(timeLeft.minutes).padStart(2, '0')}m
+                </span>
+                <span className="text-slate-400 font-bold">:</span>
+                <span className="bg-amber-600 text-white px-2 py-1 rounded shadow-2xs">
+                  {String(timeLeft.seconds).padStart(2, '0')}s
+                </span>
+              </div>
+
+              {/* Scroll Navigation Chevrons */}
+              <div className="hidden sm:flex items-center gap-1.5 ml-3">
+                <button
+                  onClick={() => scrollTrack('left')}
+                  className="w-7 h-7 rounded-md border border-slate-200 hover:border-slate-400 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scrollTrack('right')}
+                  className="w-7 h-7 rounded-md border border-slate-200 hover:border-slate-400 text-slate-600 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column: Hero Showcase Card with Floating Accent Pieces */}
-          <div className="lg:col-span-6 relative">
-            {/* Main Rounded Hero Frame */}
-            <div className="relative rounded-[32px] sm:rounded-[40px] overflow-hidden bg-stone-100 border border-[#EAE5DC] shadow-sm aspect-4/3 sm:aspect-5/4">
-              <SafeImage
-                src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80"
-                alt="Frankman Luxury Living Room and Electronics Showroom in Umuahia Nigeria"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-              {/* Overlay pill: Explore Collection ↗ */}
-              <button
-                onClick={() => onNavigate('/shop/furniture')}
-                className="absolute bottom-5 left-5 inline-flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-md rounded-full text-xs font-semibold text-stone-900 shadow-md hover:bg-white transition-all cursor-pointer"
+          {/* Horizontal Scrolling Products Container */}
+          <div
+            ref={scrollTrackRef}
+            className="flex gap-4 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth"
+          >
+            {products.slice(0, 8).map((product) => (
+              <div
+                key={product.id}
+                className="w-[200px] sm:w-[230px] shrink-0"
               >
-                <span>Explore Collection</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-[#B58235]" />
-              </button>
-            </div>
-
-            {/* Side Floating Product Highlight Card (Lounge Chair) */}
-            <div
-              onClick={() => onNavigate('/product/modern-luxury-sofa')}
-              className="absolute -bottom-6 sm:-bottom-8 right-3 sm:right-6 bg-white rounded-2xl border border-[#EAE5DC] p-3 shadow-lg flex items-center gap-3.5 max-w-xs cursor-pointer hover:shadow-xl transition-all"
-            >
-              <div className="w-14 h-14 rounded-xl bg-stone-100 overflow-hidden shrink-0">
-                <SafeImage
-                  src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80"
-                  alt="Modern Luxury Sofa"
-                  className="w-full h-full object-cover"
+                <ProductCard
+                  product={product}
+                  onNavigate={onNavigate}
+                  discountPercent={15}
                 />
               </div>
-              <div className="min-w-0 flex-1">
-                <span className="text-xs font-bold text-stone-900 block truncate">
-                  Modular Living Sofa
-                </span>
-                <div className="flex items-center gap-1 text-[11px] text-amber-500 font-semibold">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span className="text-stone-700">4.9 (120 reviews)</span>
-                </div>
-                <span className="text-xs font-bold text-[#B58235] tabular-nums">
-                  ₦450,000
-                </span>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-[#B58235] text-white flex items-center justify-center shrink-0 shadow-xs">
-                <ArrowUpRight className="w-4 h-4" />
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 2. TRUST BAR (4 Golden Circular Pillars matching Névo reference) */}
+      {/* 3. SHOP BY ROOM & CATEGORY BENTO TILES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white border border-[#EAE5DC] rounded-3xl p-6 sm:p-8 shadow-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 1. Free Shipping */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-[#FDF8EE] text-[#B58235] flex items-center justify-center shrink-0 border border-[#EBD8B8]">
-                <Truck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900">Free Fast Delivery</h4>
-                <p className="text-[11px] text-stone-500">Orders over ₦300k across Nigeria</p>
-              </div>
-            </div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg sm:text-xl font-bold text-[#0F172A]">
+            Shop By Room Category
+          </h2>
+          <button
+            onClick={() => onNavigate('/shop')}
+            className="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1 cursor-pointer"
+          >
+            <span>See All Collections</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-            {/* 2. Secure Paystack Payment */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-[#FDF8EE] text-[#B58235] flex items-center justify-center shrink-0 border border-[#EBD8B8]">
-                <CreditCard className="w-5 h-5" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          {[
+            {
+              title: 'Living Room',
+              count: 'Sofas & Chairs',
+              path: '/shop?category=living',
+              img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80',
+            },
+            {
+              title: 'Dining Suites',
+              count: 'Solid Hardwood',
+              path: '/shop?category=dining',
+              img: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=600&q=80',
+            },
+            {
+              title: 'Bedroom Sets',
+              count: 'Teak Bedframes',
+              path: '/shop?category=bedroom',
+              img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80',
+            },
+            {
+              title: 'Office Desks',
+              count: 'Ergonomic Chairs',
+              path: '/shop?category=office',
+              img: 'https://images.unsplash.com/photo-1580481077195-c3a82104e362?auto=format&fit=crop&w=600&q=80',
+            },
+            {
+              title: 'TV Consoles',
+              count: 'Fluted Acoustic',
+              path: '/shop?category=consoles',
+              img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+            },
+            {
+              title: 'Smart Electronics',
+              count: '4K TVs & Inverters',
+              path: '/shop/electronics',
+              img: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=600&q=80',
+            },
+          ].map((cat, idx) => (
+            <div
+              key={idx}
+              onClick={() => onNavigate(cat.path)}
+              className="group relative rounded-lg overflow-hidden border border-slate-200/80 bg-white p-3 shadow-xs hover:shadow-md transition-all cursor-pointer text-center flex flex-col items-center"
+            >
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-100 mb-2 border border-slate-200/70">
+                <img
+                  src={cat.img}
+                  alt={cat.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900">Paystack Secure Payment</h4>
-                <p className="text-[11px] text-stone-500">Cards, Instant Transfer, USSD & QR</p>
-              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-[#0F172A] group-hover:text-amber-600 transition-colors">
+                {cat.title}
+              </h3>
+              <span className="text-[10px] text-slate-400 mt-0.5">
+                {cat.count}
+              </span>
             </div>
-
-            {/* 3. 24/7 Dedicated Support */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-[#FDF8EE] text-[#B58235] flex items-center justify-center shrink-0 border border-[#EBD8B8]">
-                <Headphones className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900">24/7 Showroom Support</h4>
-                <p className="text-[11px] text-stone-500">Direct WhatsApp consultation desk</p>
-              </div>
-            </div>
-
-            {/* 4. 3-Year Hardwood Warranty */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-full bg-[#FDF8EE] text-[#B58235] flex items-center justify-center shrink-0 border border-[#EBD8B8]">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-bold text-stone-900">3-Year Frame Warranty</h4>
-                <p className="text-[11px] text-stone-500">100% Kiln-dried & anti-termite</p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* 3. STATS STRIP (Clean editorial metrics) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
-          <div className="bg-white rounded-2xl border border-[#EAE5DC] p-5 shadow-2xs">
-            <span className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 tabular-nums">
-              1,200+
-            </span>
-            <span className="text-xs text-stone-500 font-medium block mt-1">
-              Happy Home Owners
-            </span>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#EAE5DC] p-5 shadow-2xs">
-            <span className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 tabular-nums">
-              150+
-            </span>
-            <span className="text-xs text-stone-500 font-medium block mt-1">
-              Showroom Designs & Pieces
-            </span>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#EAE5DC] p-5 shadow-2xs">
-            <span className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 tabular-nums">
-              98%
-            </span>
-            <span className="text-xs text-stone-500 font-medium block mt-1">
-              Customer Recommendation
-            </span>
-          </div>
-          <div className="bg-white rounded-2xl border border-[#EAE5DC] p-5 shadow-2xs">
-            <span className="font-heading text-2xl sm:text-3xl font-bold text-[#B58235] tabular-nums">
-              100%
-            </span>
-            <span className="text-xs text-stone-500 font-medium block mt-1">
-              Kiln-Dried Hardwood
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. FEATURED FURNITURE & ELECTRONICS (Tabbed filter & clean card grid from Névo reference) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      {/* 4. MAIN PRODUCT SHOWCASE (Responsive: 2-Columns on Mobile, 4-Columns on Desktop) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
           <div>
-            <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-              Curated for Nigerian Homes
-            </span>
-            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
-              Featured Furniture & Living Collections
+            <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A]">
+              Recommended For Your Home &amp; Office
             </h2>
+            <p className="text-xs text-slate-500">
+              Verified inventory ready for rapid dispatch across Nigeria
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 max-w-sm">
-            Handpicked living room suites, solid timber dining tables, and generator-ready home appliances.
-          </p>
-        </div>
 
-        {/* Filter Tabs (Segmented pills) */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-3 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-          {collectionTabs.map((tab) => {
-            const isSelected = activeCollectionTab === tab.id;
-            return (
+          {/* Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+            {[
+              { id: 'all', label: 'All Catalog' },
+              { id: 'living', label: 'Living Room' },
+              { id: 'dining', label: 'Dining Sets' },
+              { id: 'bedroom', label: 'Bedroom' },
+              { id: 'office', label: 'Office' },
+              { id: 'electronics', label: 'Electronics' },
+            ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveCollectionTab(tab.id)}
-                className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[42px] cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#B58235] text-white shadow-xs'
-                    : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  activeTab === tab.id
+                    ? 'bg-[#0F172A] text-white shadow-xs'
+                    : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-400 hover:text-slate-900'
                 }`}
               >
                 {tab.label}
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* Product Showcase Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-3">
-          {filteredProducts.map((product) => {
-            const primaryImage =
-              product.images?.[0] ||
-              'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';
-            return (
-              <div
-                key={product.id}
-                onClick={() => onNavigate(`/product/${product.slug}`)}
-                className="group relative rounded-3xl overflow-hidden bg-white border border-[#EAE5DC] shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
-              >
-                {/* Visual Area */}
-                <div className="relative aspect-4/3 w-full bg-[#FAF8F5] overflow-hidden">
-                  <SafeImage
-                    src={primaryImage}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
-                  />
-
-                  {/* Top Right Circular Arrow Icon in Warm Gold */}
-                  <div className="absolute top-4 right-4 z-10">
-                    <div className="w-8 h-8 rounded-full bg-white/95 text-stone-800 shadow-xs flex items-center justify-center group-hover:bg-[#B58235] group-hover:text-white transition-colors">
-                      <ArrowUpRight className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Info */}
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-[#B58235] mb-1">
-                      <span>{product.category?.name || 'Showroom Piece'}</span>
-                      <div className="flex items-center gap-1 text-amber-500">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                        <span className="text-stone-700 text-[10px]">4.9</span>
-                      </div>
-                    </div>
-
-                    <h3 className="font-heading text-base font-bold text-stone-900 group-hover:text-[#B58235] transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-
-                    {product.shortDescription && (
-                      <p className="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
-                        {product.shortDescription}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-stone-400 uppercase font-medium block">
-                        Showroom Price
-                      </span>
-                      <span className="text-base font-bold text-stone-900 tabular-nums">
-                        {formatNaira(product.basePriceKobo)}
-                      </span>
-                    </div>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addItem({
-                          productId: product.id,
-                          variationId: product.variations[0]?.id || null,
-                          productName: product.name,
-                          variationName: product.variations[0]?.name || null,
-                          sku: product.variations[0]?.sku || product.sku,
-                          unitPriceKobo: product.basePriceKobo,
-                          image: primaryImage,
-                          stockAvailable: product.variations[0]?.stockCount || 5,
-                          slug: product.slug,
-                        });
-                      }}
-                      className="px-4 py-2 bg-[#FDF8EE] hover:bg-[#B58235] hover:text-white text-[#B58235] text-xs font-semibold rounded-full border border-[#EBD8B8] transition-colors flex items-center gap-1.5 min-h-[36px] cursor-pointer"
-                    >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>Add to Bag</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        {/* 2-Columns on Mobile, 4-Columns on Desktop Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onNavigate={onNavigate}
+              discountPercent={15}
+            />
+          ))}
         </div>
       </section>
 
-      {/* 5. "WHY CHOOSE US / TURN HOUSES INTO HOMES" BENTO BANNER (Matching Névo bento) */}
+      {/* 5. NATIONWIDE DELIVERY & TRUST PROMISE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#FAF8F5] border border-[#EAE5DC] rounded-3xl sm:rounded-[36px] p-6 sm:p-12 overflow-hidden shadow-xs">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-4 text-left">
-              <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-                CRAFTED WITH PASSION, BUILT FOR LIFE
-              </span>
-              <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl text-stone-900 font-bold leading-tight">
-                We Turn Nigerian Houses Into Modern Warm Homes
-              </h2>
-              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed max-w-xl">
-                With a steadfast commitment to kiln-dried hardwood integrity, low-voltage generator compatibility, and personalized upholstery choices, Frankman creates furniture that lasts generations.
-              </p>
-
-              {/* 3 Value Pillars */}
-              <div className="pt-2 space-y-2.5 text-xs text-stone-700">
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#B58235] shrink-0 mt-0.5" />
-                  <span><strong>100% Kiln-Dried Hardwood:</strong> Moisture-sealed framing that resists warping and wood-boring insects.</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#B58235] shrink-0 mt-0.5" />
-                  <span><strong>Generator & Inverter Friendly:</strong> 4K TVs and refrigerators engineered for stable low-draw power.</span>
-                </div>
-                <div className="flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#B58235] shrink-0 mt-0.5" />
-                  <span><strong>Bespoke Dimensions:</strong> Tailor dining and sectional sizes to fit your specific apartment or duplex layout.</span>
-                </div>
-              </div>
-
-              <div className="pt-4 flex items-center gap-3">
-                <button
-                  onClick={() => onNavigate('/about')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold shadow-xs transition-colors cursor-pointer min-h-[44px]"
-                >
-                  <span>Learn More About Us</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onNavigate('/contact')}
-                  className="inline-flex items-center gap-2 px-5 py-3 bg-white border border-[#EAE5DC] hover:border-stone-400 text-stone-800 rounded-full text-xs font-semibold shadow-2xs transition-colors cursor-pointer min-h-[44px]"
-                >
-                  <span>Showroom Location</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Right Showcase Photo Bento */}
-            <div className="lg:col-span-5 grid grid-cols-2 gap-3.5">
-              <div className="rounded-2xl overflow-hidden aspect-3/4 bg-stone-100 shadow-xs border border-[#EAE5DC]">
-                <SafeImage
-                  src="https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=600&q=80"
-                  alt="Solid timber dining suite in Umuahia"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="rounded-2xl overflow-hidden aspect-3/4 bg-stone-100 shadow-xs border border-[#EAE5DC] mt-6">
-                <SafeImage
-                  src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=600&q=80"
-                  alt="4K Smart television for Nigerian homes"
-                  className="w-full h-full object-cover"
-                />
-              </div>
+        <div className="bg-[#0F172A] rounded-lg p-6 sm:p-10 text-white relative overflow-hidden shadow-md">
+          <div className="relative z-10 max-w-2xl space-y-4">
+            <span className="bg-amber-600 text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-widest px-3 py-1 rounded">
+              Direct Showroom Assurance
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+              Furnishing Luxury Residences Across Ibadan, Lagos, &amp; The South-East
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Every timber piece is kiln-dried and treated against termites before delivery. With Paystack instant confirmation and white-glove setup teams, furnishing your duplex, apartment, or corporate headquarters has never been smoother.
+            </p>
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => onNavigate('/shop')}
+                className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm rounded-md transition-all shadow-md cursor-pointer flex items-center gap-2"
+              >
+                <span>Shop Catalog Online</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+              <a
+                href={`https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                  'Hello Frankman Furnitures, I would like to inquire about showroom delivery to my location.'
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm rounded-md border border-white/20 transition-all flex items-center gap-2"
+              >
+                <span>Speak with a Furnishing Expert</span>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. VERIFIED NIGERIAN CLIENT TESTIMONIALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-          <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-            Customer Testimonials
-          </span>
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-stone-900">
-            Trusted by Nigerian Homes & Interior Professionals
+      {/* 6. VERIFIED HOMEOWNER TESTIMONIALS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="text-center max-w-xl mx-auto space-y-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A]">
+            Verified Customer Reviews
           </h2>
-          <p className="text-xs sm:text-sm text-stone-500">
-            Read what verified property owners, architects, and residents in Abia State and across Nigeria have to say.
+          <p className="text-xs text-slate-500">
+            Real feedback from property owners and interior decorators across Nigeria
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((test, idx) => (
+          {[
+            {
+              name: 'Dr. Emeka Nwosu',
+              location: 'World Bank Housing Estate, Umuahia',
+              review:
+                'Frankman furnished our entire 5-bedroom duplex. The solid oak dining set and modular sofa exceeded expectations. Prompt delivery and courteous installation team.',
+              product: 'Solid Oak Dining Suite',
+            },
+            {
+              name: 'Arc. Chioma Adebayo',
+              location: 'Interior Architect, Ibadan & Lagos',
+              review:
+                'As an architect designing modern residences across Nigeria, I recommend Frankman for custom finishes. Their timber is genuinely kiln-dried with zero warping or pest issues.',
+              product: 'Executive Workstations & Consoles',
+            },
+            {
+              name: 'Chief Kenneth Okoli',
+              location: 'Commercial Property Investor, Aba',
+              review:
+                'The inverter double-door refrigerator and 65-inch 4K TV run effortlessly on our solar inverter. The online Paystack checkout made bank transfer instant and straightforward.',
+              product: 'Inverter Appliances & Media Suite',
+            },
+          ].map((item, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-3xl border border-[#EAE5DC] p-6 sm:p-8 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-shadow"
+              className="bg-white rounded-lg p-5 border border-slate-200/90 shadow-xs space-y-3 flex flex-col justify-between"
             >
-              <div className="space-y-3">
-                <div className="flex text-amber-400">
-                  {[...Array(test.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <div className="space-y-2">
+                <div className="flex items-center gap-1 text-amber-500">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-current" />
                   ))}
                 </div>
-                <p className="text-xs sm:text-sm text-stone-700 leading-relaxed italic">
-                  "{test.comment}"
+                <p className="text-xs text-slate-700 leading-relaxed italic">
+                  &ldquo;{item.review}&rdquo;
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FDF8EE] text-[#B58235] font-bold text-sm flex items-center justify-center shrink-0 border border-[#EBD8B8]">
-                  {test.name.charAt(0)}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">{item.name}</h4>
+                  <p className="text-[11px] text-slate-400">{item.location}</p>
                 </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-bold text-stone-900 block truncate">
-                    {test.name}
-                  </span>
-                  <span className="text-[11px] text-stone-500 block truncate">
-                    {test.role}
-                  </span>
-                </div>
+                <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  Verified Buyer
+                </span>
               </div>
             </div>
           ))}
@@ -600,140 +719,44 @@ export const HomePage: React.FC<HomePageProps> = ({
       </section>
 
       {/* 7. FREQUENTLY ASKED QUESTIONS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-            Need Assistance?
-          </span>
-          <h2 className="font-heading text-2xl sm:text-3xl font-bold text-stone-900 mt-1">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#0F172A]">
             Frequently Asked Questions
           </h2>
-          <p className="text-xs text-stone-500 mt-1">
-            Everything you need to know about purchasing, Paystack payment, and delivery in Umuahia.
+          <p className="text-xs text-slate-500">
+            Clear information about ordering, warranties, and payment security
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Showroom Visual */}
-          <div className="lg:col-span-5 rounded-3xl overflow-hidden aspect-4/3 bg-stone-100 border border-[#EAE5DC] shadow-xs hidden sm:block">
-            <SafeImage
-              src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80"
-              alt="Comfort bedroom suite and electronics in Umuahia showroom"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          {/* Right Accordion Items */}
-          <div className="lg:col-span-7 space-y-3">
-            {faqs.map((faq, idx) => {
-              const isOpen = openFaq === idx;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => setOpenFaq(isOpen ? null : idx)}
-                  className={`border rounded-2xl transition-all cursor-pointer overflow-hidden ${
-                    isOpen
-                      ? 'border-[#B58235] bg-white shadow-2xs'
-                      : 'border-[#EAE5DC] bg-white hover:border-stone-400'
-                  }`}
-                >
-                  <div className="p-4 sm:p-5 flex items-center justify-between gap-4">
-                    <span className="font-bold text-xs sm:text-sm text-stone-900">
-                      {faq.q}
-                    </span>
-                    <div className="w-7 h-7 rounded-full bg-stone-50 text-stone-700 flex items-center justify-center shrink-0">
-                      {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-[#B58235]" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </div>
-                  </div>
-                  {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs text-stone-600 leading-relaxed border-t border-stone-100">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 8. SHOWROOM VISIT CALL TO ACTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl sm:rounded-[36px] bg-[#1C1917] text-white p-8 sm:p-14 shadow-md space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <div className="space-y-4">
-              <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
-                VISIT FRANKMAN SHOWROOM
-              </span>
-              <h3 className="font-heading text-2xl sm:text-4xl font-bold leading-snug">
-                Let's Furnish Your Space & Make Beautiful Homes!
-              </h3>
-              <p className="text-xs sm:text-sm text-stone-300 max-w-md">
-                Visit our physical showroom in Umuahia, Abia State or complete your order online with instant Paystack checkout.
-              </p>
-              <div>
+        <div className="space-y-3">
+          {faqs.map((faq, index) => {
+            const isOpen = openFaq === index;
+            return (
+              <div
+                key={index}
+                className="bg-white rounded-lg border border-slate-200/90 shadow-xs overflow-hidden transition-all"
+              >
                 <button
-                  onClick={() => onNavigate('/contact')}
-                  className="px-6 py-3.5 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs sm:text-sm font-semibold tracking-wide transition-colors cursor-pointer min-h-[46px]"
+                  onClick={() => setOpenFaq(isOpen ? null : index)}
+                  className="w-full p-4 text-left flex items-center justify-between gap-4 font-semibold text-xs sm:text-sm text-slate-900 hover:text-amber-700 cursor-pointer"
+                  aria-expanded={isOpen}
                 >
-                  Contact Showroom Desk
+                  <span>{faq.q}</span>
+                  {isOpen ? (
+                    <ChevronUp className="w-4 h-4 text-amber-600 shrink-0" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                  )}
                 </button>
+                {isOpen && (
+                  <div className="px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    {faq.a}
+                  </div>
+                )}
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6 text-xs text-stone-300">
-              <div className="space-y-2">
-                <span className="font-bold text-white block uppercase tracking-wider text-[11px]">
-                  Showroom Address
-                </span>
-                <p>14 Aba Road / City Center,</p>
-                <p>Umuahia, Abia State, Nigeria</p>
-                <p>+234 803 123 4567</p>
-                <p className="text-[11px] text-stone-400">Mon - Sat: 8:30 AM - 6:30 PM</p>
-              </div>
-              <div className="space-y-2">
-                <span className="font-bold text-white block uppercase tracking-wider text-[11px]">
-                  Direct Connect
-                </span>
-                <p>
-                  <a
-                    href="https://www.facebook.com/profile.php?id=61569349703465"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline text-white"
-                  >
-                    Facebook Profile
-                  </a>
-                </p>
-                <p>
-                  <button onClick={() => onNavigate('/shop')} className="hover:underline text-white cursor-pointer">
-                    Showroom Catalog
-                  </button>
-                </p>
-                <p>
-                  <button onClick={() => onNavigate('/checkout')} className="hover:underline text-white cursor-pointer">
-                    Paystack Checkout
-                  </button>
-                </p>
-                <p>
-                  <button onClick={() => onNavigate('/admin')} className="hover:underline text-white cursor-pointer">
-                    Admin Portal
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-stone-400">
-            <div className="font-heading text-lg sm:text-2xl tracking-wider text-white uppercase">
-              FRANKMAN · UMUAHIA
-            </div>
-            <span>Where style truly meets comfort</span>
-          </div>
+            );
+          })}
         </div>
       </section>
     </div>

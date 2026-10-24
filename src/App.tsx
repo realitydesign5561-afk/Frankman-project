@@ -65,7 +65,7 @@ export default function App() {
   const isAdminRoute = location.startsWith('/admin');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F5] text-stone-900 selection:bg-amber-100 selection:text-amber-900">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-amber-500/20 selection:text-slate-900 font-sans">
       {/* Public Header (hidden on admin pages for focused workspace) */}
       {!isAdminRoute && (
         <Header
