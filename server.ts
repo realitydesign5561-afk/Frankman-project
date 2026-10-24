@@ -342,12 +342,8 @@ async function createServer() {
       server: { middlewareMode: true, hmr: false },
       appType: 'spa',
     });
-    // Serve the HTML entry directly so Vite cannot inject its HMR client.
-    // The hosted preview does not expose the WebSocket upgrade endpoint that
-    // the injected client requires; source modules still pass through Vite.
-    app.get('/', (_req: Request, res: Response) => {
-      res.sendFile(path.resolve(__dirname, 'index.html'));
-    });
+    // Vite serves and transforms index.html while HMR remains disabled in
+    // vite.config.ts, so source changes are always reflected in preview.
     // Some hosted preview layers may inject /@vite/client after Express
     // responds. Return an empty response for HMR-only assets so the browser
     // never executes a client that can connect to an unavailable WebSocket.

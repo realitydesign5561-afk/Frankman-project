@@ -102,7 +102,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Hero Top / Headline Area */}
           <div className="relative z-10 text-center max-w-3xl mx-auto space-y-4 pt-4 sm:pt-8">
             <h1 className="font-heading font-extrabold text-4xl sm:text-6xl lg:text-7xl tracking-tight text-[#2E3725] leading-none uppercase">
-              Transform<br />Space with<br /><span className="text-[#7D9AA8]">Sustainable Furniture</span>
+              Transform<br />Your Space with<br /><span className="text-[#7D9AA8]">Sustainable Furniture</span>
             </h1>
 
             <p className="text-xs sm:text-sm text-stone-700 max-w-lg mx-auto font-medium leading-relaxed px-2">
