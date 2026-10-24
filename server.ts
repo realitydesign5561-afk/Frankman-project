@@ -348,6 +348,12 @@ async function createServer() {
     app.get('/', (_req: Request, res: Response) => {
       res.sendFile(path.resolve(__dirname, 'index.html'));
     });
+    // Some hosted preview layers may inject /@vite/client after Express
+    // responds. Return an empty response for HMR-only assets so the browser
+    // never executes a client that can connect to an unavailable WebSocket.
+    app.get(['/__vite_ping', '/@vite/client', '/@react-refresh'], (_req: Request, res: Response) => {
+      res.status(204).end();
+    });
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(__dirname, 'dist');
