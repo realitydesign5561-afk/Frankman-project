@@ -445,11 +445,18 @@ class FrankmanDataStore {
       this.discountCodes.set(code.code, code);
     }
 
-    // Default Admin User
+    // Default Admin Users
     this.adminUsers.set('admin@frankman.ng', {
       id: 'admin-1',
       email: 'admin@frankman.ng',
       name: 'Frankman Admin',
+      role: 'SUPER_ADMIN',
+      passwordHash: hashPassword('FrankmanAdmin2026!'),
+    });
+    this.adminUsers.set('realitydesign5561@gmail.com', {
+      id: 'admin-2',
+      email: 'realitydesign5561@gmail.com',
+      name: 'Frankman Showroom Admin',
       role: 'SUPER_ADMIN',
       passwordHash: hashPassword('FrankmanAdmin2026!'),
     });

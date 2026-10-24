@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Product, Category } from '../types';
+import { Product } from '../types';
 import { ProductCard } from '../components/products/ProductCard';
 import { Search, X, RotateCcw } from 'lucide-react';
-import { formatNaira } from '../lib/pricing';
+import { clientStore } from '../lib/client-store';
 
 interface ShopPageProps {
   initialCategory?: 'furniture' | 'electronics';
@@ -46,13 +46,31 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
     }
 
     fetch(`/api/products?${params.toString()}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('API non-200');
+        return res.json();
+      })
       .then((data) => {
-        if (data.products) {
+        if (data.products && data.products.length > 0) {
           setProducts(data.products);
+        } else {
+          throw new Error('No products in response');
         }
       })
-      .catch((err) => console.error(err))
+      .catch(() => {
+        // Fallback to clientStore
+        let list = clientStore.getProducts();
+        if (selectedCategory === 'furniture') {
+          list = list.filter((p) => p.categoryId === 'cat-furniture');
+        } else if (selectedCategory === 'electronics') {
+          list = list.filter((p) => p.categoryId === 'cat-electronics');
+        }
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          list = list.filter((p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+        }
+        setProducts(list);
+      })
       .finally(() => setLoading(false));
   }, [selectedCategory, searchQuery, sortBy, maxPriceNaira, inStockOnly]);
 
@@ -72,14 +90,14 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
     inStockOnly;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 bg-[#FAF8F5]">
       {/* Title & Collection Banner */}
-      <div className="border-b border-stone-200 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="border-b border-[#EAE5DC] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <span className="text-[11px] uppercase tracking-widest font-bold text-[#4A5538]">
+          <span className="text-[11px] uppercase tracking-widest font-semibold text-[#B58235]">
             Frankman Showroom Catalog
           </span>
-          <h1 className="font-heading font-extrabold text-3xl sm:text-4xl text-stone-900 mt-1">
+          <h1 className="font-heading font-bold text-3xl sm:text-4xl text-stone-900 mt-1">
             {selectedCategory === 'furniture'
               ? 'Furniture Collection'
               : selectedCategory === 'electronics'
@@ -91,17 +109,17 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
           </p>
         </div>
 
-        {/* Category Pill Tabs (Exact screenshot styling) */}
+        {/* Category Pill Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           <button
             onClick={() => {
               setSelectedCategory('all');
               onNavigate('/shop');
             }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
               selectedCategory === 'all'
-                ? 'bg-[#4A5538] text-white shadow-xs'
-                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
+                ? 'bg-[#B58235] text-white shadow-xs'
+                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
             }`}
           >
             All Products
@@ -111,10 +129,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               setSelectedCategory('furniture');
               onNavigate('/shop/furniture');
             }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
               selectedCategory === 'furniture'
-                ? 'bg-[#4A5538] text-white shadow-xs'
-                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
+                ? 'bg-[#B58235] text-white shadow-xs'
+                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
             }`}
           >
             Furniture
@@ -124,10 +142,10 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               setSelectedCategory('electronics');
               onNavigate('/shop/electronics');
             }}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 min-h-[40px] ${
+            className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 min-h-[40px] cursor-pointer ${
               selectedCategory === 'electronics'
-                ? 'bg-[#4A5538] text-white shadow-xs'
-                : 'bg-[#EDE9E1] text-stone-700 hover:bg-[#E2DDD3]'
+                ? 'bg-[#B58235] text-white shadow-xs'
+                : 'bg-white border border-[#EAE5DC] text-stone-700 hover:border-stone-400'
             }`}
           >
             Electronics
@@ -136,7 +154,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl border border-stone-200 p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#EAE5DC] p-4 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Search Input */}
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -145,12 +163,12 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, finish, or specs..."
-            className="w-full text-xs sm:text-sm bg-[#FAF9F5] border border-stone-200 rounded-full pl-9 pr-3.5 py-2.5 text-stone-900 focus:bg-white focus:outline-none focus:border-[#4A5538]"
+            className="w-full text-xs sm:text-sm bg-[#FAF8F5] border border-[#EAE5DC] rounded-full pl-9 pr-3.5 py-2.5 text-stone-900 focus:bg-white focus:outline-none focus:border-[#B58235] transition-colors"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -164,7 +182,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded-md border-stone-300 text-[#4A5538] focus:ring-[#4A5538] h-4 w-4"
+              className="rounded-md border-stone-300 text-[#B58235] focus:ring-[#B58235] h-4 w-4"
             />
             <span>In Stock Only</span>
           </label>
@@ -177,7 +195,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-[#FAF9F5] border border-stone-200 rounded-full px-3 py-1.5 text-stone-900 focus:outline-none focus:border-[#4A5538] font-medium"
+              className="bg-[#FAF8F5] border border-[#EAE5DC] rounded-full px-3 py-1.5 text-stone-900 focus:outline-none focus:border-[#B58235] font-medium cursor-pointer"
             >
               <option value="featured">Featured First</option>
               <option value="newest">Newest Arrivals</option>
@@ -189,7 +207,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="text-[#4A5538] hover:text-[#38432A] font-bold flex items-center gap-1 transition-colors px-2 py-1"
+              className="text-[#B58235] hover:text-[#9E6F2B] font-semibold flex items-center gap-1 transition-colors px-2 py-1 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>
@@ -209,12 +227,12 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-96 rounded-[28px] bg-stone-100 animate-pulse border border-stone-200"
+              className="h-96 rounded-3xl bg-stone-100 animate-pulse border border-[#EAE5DC]"
             />
           ))}
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
+        <div className="text-center py-16 bg-white rounded-3xl border border-[#EAE5DC] p-8 space-y-3">
           <h3 className="font-heading text-lg font-bold text-stone-900">
             No products match your current filters
           </h3>
@@ -223,7 +241,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ initialCategory, onNavigate 
           </p>
           <button
             onClick={resetFilters}
-            className="px-5 py-2.5 bg-[#4A5538] text-white text-xs font-bold rounded-full hover:bg-[#3D472D] transition-colors"
+            className="px-5 py-2.5 bg-[#B58235] text-white text-xs font-semibold rounded-full hover:bg-[#9E6F2B] transition-colors cursor-pointer"
           >
             Clear Filters
           </button>

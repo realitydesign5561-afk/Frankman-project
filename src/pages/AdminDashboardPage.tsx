@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { formatNaira } from '../lib/pricing';
 import { SafeImage } from '../components/ui/SafeImage';
+import { clientStore } from '../lib/client-store';
 import {
   LayoutDashboard,
   Package,
@@ -94,26 +95,44 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     Authorization: `Bearer ${token}`,
   };
 
-  // Fetch data
+  // Fetch data with full clientStore fallback for Vercel static hosting
   const loadAllData = () => {
     setLoading(true);
+
+    const safeFetch = async (url: string, headers?: any) => {
+      try {
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error('API non-200');
+        return await res.json();
+      } catch {
+        return null;
+      }
+    };
+
     Promise.all([
-      fetch('/api/admin/stats', { headers: authHeaders }).then((r) => r.json()),
-      fetch('/api/admin/orders', { headers: authHeaders }).then((r) => r.json()),
-      fetch('/api/admin/products', { headers: authHeaders }).then((r) => r.json()),
-      fetch('/api/admin/discounts', { headers: authHeaders }).then((r) => r.json()),
-      fetch('/api/settings').then((r) => r.json()),
-      fetch('/api/admin/inventory/history', { headers: authHeaders }).then((r) => r.json()),
+      safeFetch('/api/admin/stats', authHeaders),
+      safeFetch('/api/admin/orders', authHeaders),
+      safeFetch('/api/admin/products', authHeaders),
+      safeFetch('/api/admin/discounts', authHeaders),
+      safeFetch('/api/settings'),
+      safeFetch('/api/admin/inventory/history', authHeaders),
     ])
       .then(([statsData, ordersData, prodsData, discData, settingsData, invData]) => {
-        setStats(statsData);
-        setOrders(ordersData);
-        setProducts(prodsData);
-        setDiscounts(discData);
-        setSettings(settingsData);
-        setInventoryHistory(invData);
+        setStats(statsData || clientStore.getAdminStats());
+        setOrders(ordersData || clientStore.getOrders());
+        setProducts(prodsData || clientStore.getProducts());
+        setDiscounts(discData || clientStore.getDiscounts());
+        setSettings(settingsData || clientStore.getStoreSettings());
+        setInventoryHistory(invData || []);
       })
-      .catch((err) => console.error('Admin fetch error:', err))
+      .catch((err) => {
+        console.warn('API fetch fell back to clientStore:', err);
+        setStats(clientStore.getAdminStats());
+        setOrders(clientStore.getOrders());
+        setProducts(clientStore.getProducts());
+        setDiscounts(clientStore.getDiscounts());
+        setSettings(clientStore.getStoreSettings());
+      })
       .finally(() => setLoading(false));
   };
 
@@ -133,16 +152,28 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         headers: authHeaders,
         body: JSON.stringify({ orderStatus, paymentStatus }),
       });
-      const data = await res.json();
-      if (data.success) {
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Order #${orderNumber} updated to ${orderStatus}`);
+          loadAllData();
+          if (selectedOrder?.orderNumber === orderNumber) {
+            setSelectedOrder(data.order);
+          }
+          return;
+        }
+      }
+      throw new Error('Server update failed');
+    } catch {
+      // Fallback to clientStore
+      const updated = clientStore.updateOrderStatus(orderNumber, orderStatus, paymentStatus);
+      if (updated) {
         showToast(`Order #${orderNumber} updated to ${orderStatus}`);
         loadAllData();
         if (selectedOrder?.orderNumber === orderNumber) {
-          setSelectedOrder(data.order);
+          setSelectedOrder(updated);
         }
       }
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -157,15 +188,24 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         headers: authHeaders,
         body: JSON.stringify(editingProduct),
       });
-      const data = await res.json();
-      if (data.success) {
-        showToast('Product catalog updated');
-        setProductModalOpen(false);
-        setEditingProduct(null);
-        loadAllData();
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          showToast('Product catalog updated');
+          setProductModalOpen(false);
+          setEditingProduct(null);
+          loadAllData();
+          return;
+        }
       }
-    } catch (err) {
-      console.error(err);
+      throw new Error('Server save failed');
+    } catch {
+      // Fallback to clientStore
+      clientStore.saveProduct(editingProduct);
+      showToast('Product catalog updated');
+      setProductModalOpen(false);
+      setEditingProduct(null);
+      loadAllData();
     }
   };
 
@@ -173,14 +213,21 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('Are you sure you want to remove this product from the showroom?')) return;
     try {
-      await fetch(`/api/admin/products/${id}`, {
+      const res = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
         headers: authHeaders,
       });
+      if (res.ok) {
+        showToast('Product removed');
+        loadAllData();
+        return;
+      }
+      throw new Error('Server delete failed');
+    } catch {
+      // Fallback to clientStore
+      clientStore.deleteProduct(id);
       showToast('Product removed');
       loadAllData();
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -199,9 +246,14 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
       if (res.ok) {
         showToast('Stock count adjusted');
         loadAllData();
+        return;
       }
-    } catch (err) {
-      console.error(err);
+      throw new Error('Server stock update failed');
+    } catch {
+      // Fallback to clientStore
+      clientStore.updateVariationStock(variationId, newStock);
+      showToast('Stock count adjusted');
+      loadAllData();
     }
   };
 
@@ -210,32 +262,48 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
     e.preventDefault();
     if (!newDiscount.code) return;
 
+    const discountPayload = {
+      code: newDiscount.code.toUpperCase().trim(),
+      discountPercentage: newDiscount.discountPercentage,
+      minimumOrderKobo: newDiscount.minimumOrderNaira * 100,
+      maximumUses: newDiscount.maximumUses,
+      isActive: true,
+    };
+
     try {
       const res = await fetch('/api/admin/discounts', {
         method: 'POST',
         headers: authHeaders,
-        body: JSON.stringify({
-          code: newDiscount.code.toUpperCase().trim(),
-          discountPercentage: newDiscount.discountPercentage,
-          minimumOrderKobo: newDiscount.minimumOrderNaira * 100,
-          maximumUses: newDiscount.maximumUses,
-          isActive: true,
-        }),
+        body: JSON.stringify(discountPayload),
       });
-      const data = await res.json();
-      if (data.success) {
-        showToast(`Discount code ${newDiscount.code} created`);
-        setDiscountModalOpen(false);
-        setNewDiscount({
-          code: '',
-          discountPercentage: 10,
-          minimumOrderNaira: 50000,
-          maximumUses: 100,
-        });
-        loadAllData();
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Discount code ${newDiscount.code} created`);
+          setDiscountModalOpen(false);
+          setNewDiscount({
+            code: '',
+            discountPercentage: 10,
+            minimumOrderNaira: 50000,
+            maximumUses: 100,
+          });
+          loadAllData();
+          return;
+        }
       }
-    } catch (err) {
-      console.error(err);
+      throw new Error('Server discount creation failed');
+    } catch {
+      // Fallback to clientStore
+      clientStore.createDiscount(discountPayload);
+      showToast(`Discount code ${newDiscount.code} created`);
+      setDiscountModalOpen(false);
+      setNewDiscount({
+        code: '',
+        discountPercentage: 10,
+        minimumOrderNaira: 50000,
+        maximumUses: 100,
+      });
+      loadAllData();
     }
   };
 
@@ -250,13 +318,21 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         headers: authHeaders,
         body: JSON.stringify(settings),
       });
-      const data = await res.json();
-      if (data.success) {
-        showToast('Store settings saved successfully');
-        loadAllData();
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          showToast('Store settings saved successfully');
+          loadAllData();
+          return;
+        }
       }
-    } catch (err) {
-      console.error(err);
+      throw new Error('Server settings save failed');
+    } catch {
+      // Fallback to clientStore
+      const updated = clientStore.updateStoreSettings(settings);
+      setSettings(updated);
+      showToast('Store settings saved successfully');
+      loadAllData();
     }
   };
 

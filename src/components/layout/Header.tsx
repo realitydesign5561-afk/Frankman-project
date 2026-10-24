@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Search, Menu, X, Shield, Phone, ArrowUpRight } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, Shield, Phone, Sparkles } from 'lucide-react';
 import { useCartStore } from '../../store/cart-store';
 
 interface HeaderProps {
@@ -12,7 +12,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentPath = '/',
   onNavigate,
-  announcementText = 'Discover handcrafted furniture and quality electronics in Umuahia.',
+  announcementText = 'Handcrafted furniture & smart inverter electronics in Nigeria. Pay securely with Paystack.',
   announcementActive = true,
 }) => {
   const { getTotalCount, setDrawerOpen } = useCartStore();
@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navLinks = [
     { label: 'Home', path: '/' },
-    { label: 'Collections', path: '/shop' },
+    { label: 'Shop', path: '/shop' },
     { label: 'Furniture', path: '/shop/furniture' },
     { label: 'Electronics', path: '/shop/electronics' },
     { label: 'About Us', path: '/about' },
@@ -46,16 +46,17 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F8F7F4]/95 backdrop-blur-md transition-all">
-      {/* Optional Top Announcement Bar */}
+    <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#EAE5DC]/80 transition-all">
+      {/* Top Announcement Bar */}
       {announcementActive && !announcementDismissed && (
-        <div className="bg-[#4A5538] text-[#F3EFE6] px-4 py-1.5 text-[11px] sm:text-xs flex items-center justify-between text-center tracking-wide font-medium">
-          <div className="flex-1 text-center">
-            {announcementText}
+        <div className="bg-[#B58235] text-white px-4 py-1.5 text-[11px] sm:text-xs flex items-center justify-between text-center tracking-wide font-medium">
+          <div className="flex-1 text-center flex items-center justify-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+            <span>{announcementText}</span>
           </div>
           <button
             onClick={() => setAnnouncementDismissed(true)}
-            className="text-white/80 hover:text-white p-1 ml-2 transition-colors"
+            className="text-white/80 hover:text-white p-1 ml-2 transition-colors cursor-pointer"
             aria-label="Dismiss announcement"
           >
             <X className="w-3.5 h-3.5" />
@@ -64,18 +65,45 @@ export const Header: React.FC<HeaderProps> = ({
       )}
 
       {/* Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="bg-white/90 border border-stone-200/90 rounded-full px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shadow-xs">
-          {/* Left: Nav Links (Desktop) */}
-          <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-stone-600">
-            {navLinks.slice(0, 3).map((link) => {
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+        <div className="flex items-center justify-between gap-6">
+          {/* Left: Mobile Menu Toggle + Logo */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-stone-700 hover:text-stone-900 rounded-full hover:bg-stone-100 transition-colors cursor-pointer"
+              aria-label="Open mobile menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            {/* Brand Logo & Wordmark matching Névo style */}
+            <button
+              onClick={() => handleNav('/')}
+              className="flex items-center gap-2.5 group cursor-pointer text-left"
+            >
+              {/* Organic furniture leaf emblem */}
+              <div className="w-8 h-8 rounded-full bg-[#B58235] text-white flex items-center justify-center shadow-xs group-hover:bg-[#9E6F2B] transition-colors">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2v-6h2v6zm-2-8a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                </svg>
+              </div>
+              <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-stone-900 group-hover:text-[#B58235] transition-colors">
+                Frankman
+              </span>
+            </button>
+          </div>
+
+          {/* Center: Clean Nav Links (Desktop) */}
+          <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-stone-600">
+            {navLinks.map((link) => {
               const isActive = currentPath === link.path;
               return (
                 <button
                   key={link.path}
                   onClick={() => handleNav(link.path)}
-                  className={`transition-colors whitespace-nowrap hover:text-stone-950 py-1 ${
-                    isActive ? 'text-[#4A5538] font-bold' : ''
+                  className={`transition-colors whitespace-nowrap hover:text-stone-950 py-1 cursor-pointer ${
+                    isActive ? 'text-[#B58235] font-bold' : ''
                   }`}
                 >
                   {link.label}
@@ -84,71 +112,31 @@ export const Header: React.FC<HeaderProps> = ({
             })}
           </nav>
 
-          {/* Mobile Menu Toggle (Left on mobile) */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-stone-800 hover:text-black rounded-full hover:bg-stone-100 transition-colors"
-            aria-label="Open mobile menu"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-
-          {/* Center: Brand Wordmark */}
-          <button
-            onClick={() => handleNav('/')}
-            className="flex items-center gap-2 group cursor-pointer focus:outline-hidden"
-          >
-            <div className="w-6 h-6 rounded-full bg-[#4A5538] text-white flex items-center justify-center font-bold text-[11px]">
-              F
-            </div>
-            <span className="font-heading font-extrabold text-sm sm:text-base tracking-widest text-[#2E3725] uppercase group-hover:text-[#4A5538] transition-colors">
-              FRANKMAN
-            </span>
-          </button>
-
-          {/* Right Links (Desktop) & Action Pills */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Desktop right links */}
-            <nav className="hidden lg:flex items-center gap-5 text-xs font-semibold text-stone-600 mr-1">
-              {navLinks.slice(3).map((link) => {
-                const isActive = currentPath === link.path;
-                return (
-                  <button
-                    key={link.path}
-                    onClick={() => handleNav(link.path)}
-                    className={`transition-colors whitespace-nowrap hover:text-stone-950 py-1 ${
-                      isActive ? 'text-[#4A5538] font-bold' : ''
-                    }`}
-                  >
-                    {link.label}
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Circular Search Button */}
+          {/* Right Action Icons & Shopping Bag Pill */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search Button */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 flex items-center justify-center transition-colors"
+              className="w-9 h-9 rounded-full bg-white border border-[#EAE5DC] hover:border-stone-400 text-stone-700 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
               aria-label="Search showroom"
             >
               <Search className="w-4 h-4" />
             </button>
 
-            {/* Admin Quick Link */}
+            {/* Admin Portal Link */}
             <button
               onClick={() => handleNav('/admin')}
-              className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-stone-600 hover:text-stone-950 hover:bg-stone-100 transition-colors"
-              title="Store Admin"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-stone-600 hover:text-stone-950 hover:bg-stone-100 transition-colors cursor-pointer"
+              title="Admin Portal"
             >
               <Shield className="w-3.5 h-3.5 text-stone-500" />
               <span>Admin</span>
             </button>
 
-            {/* Shopping Bag Pill Button */}
+            {/* Shopping Bag Pill Button in Warm Gold */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-[#4A5538] hover:bg-[#3E482F] text-white rounded-full text-xs font-bold tracking-wide shadow-xs transition-colors whitespace-nowrap shrink-0"
+              className="flex items-center gap-2 px-4 py-2 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold tracking-wide shadow-xs transition-colors whitespace-nowrap shrink-0 cursor-pointer"
               aria-label={`Shopping bag with ${totalCount} items`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
@@ -163,30 +151,30 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Expandable Search Drawer */}
       {searchOpen && (
-        <div className="max-w-4xl mx-auto px-4 pb-3">
+        <div className="max-w-4xl mx-auto px-4 pb-3 animate-in fade-in slide-in-from-top-1">
           <form
             onSubmit={handleSearchSubmit}
-            className="bg-white border border-stone-200 rounded-2xl p-2.5 flex items-center gap-3 shadow-md"
+            className="bg-white border border-[#EAE5DC] rounded-2xl p-2.5 flex items-center gap-3 shadow-md"
           >
             <Search className="w-4 h-4 text-stone-400 shrink-0 ml-2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search dining sets, modular sofas, 4K TVs, consoles in Umuahia..."
+              placeholder="Search dining suites, modular sofas, 4K TVs, consoles in Umuahia..."
               className="flex-1 text-xs sm:text-sm bg-transparent border-0 focus:ring-0 focus:outline-none placeholder-stone-400 text-stone-900"
               autoFocus
             />
             <button
               type="submit"
-              className="px-4 py-1.5 bg-[#4A5538] text-white text-xs font-bold rounded-full hover:bg-[#3E482F] transition-colors"
+              className="px-4 py-1.5 bg-[#B58235] text-white text-xs font-semibold rounded-full hover:bg-[#9E6F2B] transition-colors cursor-pointer"
             >
               Search
             </button>
             <button
               type="button"
               onClick={() => setSearchOpen(false)}
-              className="p-1 text-stone-400 hover:text-stone-700"
+              className="p-1 text-stone-400 hover:text-stone-700 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -196,15 +184,15 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white/95 backdrop-blur-lg border border-stone-200 rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in slide-in-from-top-2">
+        <div className="lg:hidden fixed inset-x-4 top-20 z-50 bg-white/95 backdrop-blur-lg border border-[#EAE5DC] rounded-3xl p-6 shadow-2xl space-y-5 animate-in fade-in slide-in-from-top-2">
           <div className="flex flex-col space-y-1">
             {navLinks.map((link) => (
               <button
                 key={link.path}
                 onClick={() => handleNav(link.path)}
-                className={`text-left text-sm font-semibold py-3 px-3 rounded-xl transition-colors ${
+                className={`text-left text-sm font-semibold py-3 px-3 rounded-xl transition-colors cursor-pointer ${
                   currentPath === link.path
-                    ? 'bg-[#F2EFE9] text-[#4A5538] font-bold'
+                    ? 'bg-[#FDF8EE] text-[#B58235] font-bold'
                     : 'text-stone-800 hover:bg-stone-50'
                 }`}
               >
@@ -213,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
             ))}
             <button
               onClick={() => handleNav('/admin')}
-              className="text-left text-sm font-semibold py-3 px-3 rounded-xl text-stone-600 hover:bg-stone-50 flex items-center gap-2"
+              className="text-left text-sm font-semibold py-3 px-3 rounded-xl text-stone-600 hover:bg-stone-50 flex items-center gap-2 cursor-pointer"
             >
               <Shield className="w-4 h-4 text-stone-500" />
               <span>Admin Management</span>
@@ -224,7 +212,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span>Umuahia, Abia State</span>
             <a
               href="tel:+2348031234567"
-              className="font-semibold text-[#4A5538] flex items-center gap-1"
+              className="font-semibold text-[#B58235] flex items-center gap-1"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>Call Showroom</span>

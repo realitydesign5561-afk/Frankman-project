@@ -3,6 +3,7 @@ import { Order } from '../types';
 import { formatNaira } from '../lib/pricing';
 import { SafeImage } from '../components/ui/SafeImage';
 import { WhatsAppButton } from '../components/support/WhatsAppButton';
+import { clientStore } from '../lib/client-store';
 import {
   CheckCircle2,
   Printer,
@@ -33,13 +34,13 @@ export const OrderConfirmationPage: React.FC<OrderConfirmationPageProps> = ({
     setLoading(true);
     fetch(`/api/orders/${reference}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Order not found');
+        if (!res.ok) throw new Error('Order not found on server');
         return res.json();
       })
       .then((data: Order) => setOrder(data))
-      .catch((err) => {
-        console.error(err);
-        setOrder(null);
+      .catch(() => {
+        const fallback = clientStore.getOrderByReference(reference);
+        setOrder(fallback);
       })
       .finally(() => setLoading(false));
   }, [reference]);

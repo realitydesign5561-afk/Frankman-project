@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Clock, Facebook, MessageCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, Facebook, MessageCircle, ShieldCheck } from 'lucide-react';
 import { formatWhatsAppUrl } from '../support/WhatsAppButton';
 
 interface FooterProps {
@@ -17,31 +17,38 @@ export const Footer: React.FC<FooterProps> = ({
   phone = '+234 803 123 4567',
   whatsapp = '+2348031234567',
   email = 'info@frankman.ng',
-  businessAddress = 'Umuahia, Abia State, Nigeria',
+  businessAddress = '14 Aba Road, Umuahia, Abia State, Nigeria',
   businessHours = 'Monday - Saturday: 8:30 AM - 6:30 PM | Sunday: Closed',
   facebookUrl = 'https://www.facebook.com/profile.php?id=61569349703465',
 }) => {
   return (
-    <footer className="bg-[#1C1917] text-stone-300 pt-16 pb-12 border-t border-stone-800">
+    <footer className="bg-[#F7F4EE] text-stone-700 pt-16 pb-12 border-t border-[#EAE5DC]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-stone-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#EAE5DC]">
           {/* Col 1: Brand & Identity */}
           <div className="space-y-4">
-            <h3 className="font-serif text-2xl font-bold text-white tracking-tight">
-              Frankman
-            </h3>
-            <p className="text-amber-500 font-serif italic text-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#B58235] text-white flex items-center justify-center shadow-xs">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm4 0h-2v-6h2v6zm-2-8a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                </svg>
+              </div>
+              <h3 className="font-heading text-2xl font-bold text-stone-900 tracking-tight">
+                Frankman
+              </h3>
+            </div>
+            <p className="text-[#B58235] font-editorial italic text-sm">
               "Where style truly meets comfort."
             </p>
-            <p className="text-xs text-stone-400 leading-relaxed max-w-sm">
-              Premium furniture and electronics retail destination in Umuahia, Abia State. Curated living room, dining sets, home theater, and household appliances designed to enrich modern Nigerian living.
+            <p className="text-xs text-stone-600 leading-relaxed max-w-sm">
+              Handcrafted kiln-dried hardwood furniture and smart home electronics in Umuahia, Abia State. Direct delivery to luxury homes, duplexes, and commercial properties across Nigeria.
             </p>
             <div className="pt-2 flex items-center gap-3">
               <a
                 href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-200 flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full bg-white border border-[#EAE5DC] hover:border-[#B58235] text-stone-700 hover:text-[#B58235] flex items-center justify-center transition-colors shadow-xs"
                 aria-label="Visit Frankman Furniture & Electronics on Facebook"
               >
                 <Facebook className="w-4 h-4" />
@@ -50,7 +57,7 @@ export const Footer: React.FC<FooterProps> = ({
                 href={formatWhatsAppUrl(whatsapp, 'Hello Frankman Furniture & Electronics, I am connecting from your website.')}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-stone-800 hover:bg-[#1E7E34] text-stone-200 flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center transition-colors shadow-xs"
                 aria-label="Chat with Frankman on WhatsApp"
               >
                 <MessageCircle className="w-4 h-4" />
@@ -58,16 +65,16 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* Col 2: Collections */}
+          {/* Col 2: Showroom Collections */}
           <div className="space-y-3">
-            <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
+            <h4 className="text-xs font-bold text-stone-900 tracking-wider uppercase">
               Showroom Collections
             </h4>
-            <ul className="space-y-2 text-xs text-stone-400">
+            <ul className="space-y-2 text-xs text-stone-600">
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
                   Living Room Sofas & Sectionals
                 </button>
@@ -75,23 +82,23 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Dining Tables & Chairs
+                  Solid Timber Dining Suites
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Contemporary Media Consoles
+                  Contemporary Media TV Consoles
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
                   Smart 4K & OLED Televisions
                 </button>
@@ -99,32 +106,32 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Inverter Refrigerators
+                  Inverter Double-Door Refrigerators
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Surround Sound Audio Systems
+                  Surround Sound Home Theaters
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Customer Care & Policies */}
+          {/* Col 3: Customer Care & Paystack Checkout */}
           <div className="space-y-3">
-            <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
-              Customer Support
+            <h4 className="text-xs font-bold text-stone-900 tracking-wider uppercase">
+              Customer Support & Payment
             </h4>
-            <ul className="space-y-2 text-xs text-stone-400">
+            <ul className="space-y-2 text-xs text-stone-600">
               <li>
                 <button
                   onClick={() => onNavigate('/about')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
                   About Frankman
                 </button>
@@ -132,62 +139,67 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/contact')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Contact Showroom
+                  Contact Showroom Desk
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('/contact')}
-                  className="hover:text-amber-400 transition-colors"
+                  onClick={() => onNavigate('/checkout')}
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Shipping & Delivery Policy
+                  Paystack Online Checkout
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => onNavigate('/contact')}
-                  className="hover:text-amber-400 transition-colors"
+                  onClick={() => onNavigate('/cart')}
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer"
                 >
-                  Returns & Refunds Guidelines
+                  Shopping Bag
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('/admin')}
-                  className="hover:text-amber-400 transition-colors"
+                  className="hover:text-[#B58235] transition-colors text-left cursor-pointer text-stone-500"
                 >
-                  Store Administration
+                  Store Administration Portal
                 </button>
               </li>
             </ul>
+
+            <div className="pt-2 text-[11px] text-stone-500 space-y-1">
+              <span className="font-semibold text-stone-800 block">Verified Payment Channels:</span>
+              <p>Debit Card · Bank Transfer · USSD · Cash on Delivery</p>
+            </div>
           </div>
 
           {/* Col 4: Store Location & Contact */}
           <div className="space-y-3">
-            <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
+            <h4 className="text-xs font-bold text-stone-900 tracking-wider uppercase">
               Showroom Location
             </h4>
-            <div className="space-y-2.5 text-xs text-stone-400">
+            <div className="space-y-2.5 text-xs text-stone-600">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#B58235] shrink-0 mt-0.5" />
                 <span>{businessAddress}</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-amber-500 shrink-0" />
-                <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-white">
+                <Phone className="w-4 h-4 text-[#B58235] shrink-0" />
+                <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-stone-900">
                   {phone}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-amber-500 shrink-0" />
-                <a href={`mailto:${email}`} className="hover:text-white">
+                <Mail className="w-4 h-4 text-[#B58235] shrink-0" />
+                <a href={`mailto:${email}`} className="hover:text-stone-900">
                   {email}
                 </a>
               </div>
               <div className="flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <Clock className="w-4 h-4 text-[#B58235] shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{businessHours}</span>
               </div>
             </div>
@@ -199,12 +211,12 @@ export const Footer: React.FC<FooterProps> = ({
           <p>
             &copy; {new Date().getFullYear()} Frankman Furniture & Electronics. All rights reserved. Umuahia, Abia State, Nigeria.
           </p>
-          <div className="flex items-center gap-4 text-stone-400">
+          <div className="flex flex-wrap items-center gap-2.5 text-stone-500">
             <span>Umuahia Furniture Retail</span>
             <span>·</span>
-            <span>Home Electronics</span>
+            <span>Home Electronics Nigeria</span>
             <span>·</span>
-            <span>Abia State</span>
+            <span>Abia State Delivery</span>
           </div>
         </div>
       </div>

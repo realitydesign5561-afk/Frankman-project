@@ -4,6 +4,7 @@ import { SafeImage } from '../components/ui/SafeImage';
 import { formatNaira, calculateVariationPrice } from '../lib/pricing';
 import { useCartStore } from '../store/cart-store';
 import { WhatsAppButton } from '../components/support/WhatsAppButton';
+import { clientStore } from '../lib/client-store';
 import {
   ShoppingBag,
   Truck,
@@ -38,7 +39,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     setLoading(true);
     fetch(`/api/products/${slug}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Product not found');
+        if (!res.ok) throw new Error('Product not found on server');
         return res.json();
       })
       .then((data: Product) => {
@@ -48,9 +49,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           setSelectedVariation(firstActive);
         }
       })
-      .catch((err) => {
-        console.error(err);
-        setProduct(null);
+      .catch(() => {
+        const fallback = clientStore.getProductBySlug(slug);
+        setProduct(fallback);
+        if (fallback?.variations && fallback.variations.length > 0) {
+          const firstActive = fallback.variations.find((v) => v.isActive) || fallback.variations[0];
+          setSelectedVariation(firstActive);
+        }
       })
       .finally(() => setLoading(false));
   }, [slug]);
@@ -314,7 +319,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="flex-1 py-3 px-5 bg-[#4A5538] hover:bg-[#3D472D] disabled:bg-stone-300 text-white text-xs font-bold tracking-wide rounded-full flex items-center justify-center gap-2 shadow-xs transition-all min-h-[46px]"
+                className="flex-1 py-3 px-5 bg-[#B58235] hover:bg-[#9E6F2B] disabled:bg-stone-300 text-white text-xs font-semibold tracking-wide rounded-full flex items-center justify-center gap-2 shadow-xs transition-all min-h-[46px] cursor-pointer"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>{isOutOfStock ? 'Currently Unavailable' : 'Add to Shopping Bag'}</span>
@@ -328,7 +333,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 onNavigate('/checkout');
               }}
               disabled={isOutOfStock}
-              className="w-full py-3 px-5 border-2 border-[#4A5538] text-[#4A5538] hover:bg-[#4A5538] hover:text-white disabled:border-stone-200 disabled:text-stone-400 rounded-full text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 min-h-[46px]"
+              className="w-full py-3 px-5 border-2 border-[#B58235] text-[#B58235] hover:bg-[#B58235] hover:text-white disabled:border-stone-200 disabled:text-stone-400 rounded-full text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 min-h-[46px] cursor-pointer"
             >
               <span>Instant Paystack Checkout</span>
             </button>

@@ -189,7 +189,7 @@ export const CartDrawer: React.FC<{ onNavigate?: (path: string) => void }> = ({ 
 
               <button
                 onClick={() => handleLinkClick('/checkout')}
-                className="w-full py-3.5 bg-[#4A5538] hover:bg-[#3D472D] text-white rounded-full text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-colors min-h-[46px]"
+                className="w-full py-3.5 bg-[#B58235] hover:bg-[#9E6F2B] text-white rounded-full text-xs font-semibold tracking-wider uppercase flex items-center justify-center gap-2 shadow-sm transition-colors min-h-[46px] cursor-pointer"
               >
                 <span>Proceed to Checkout</span>
                 <ArrowRight className="w-4 h-4" />

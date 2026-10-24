@@ -2,25 +2,33 @@
 
 @layer base {
   :root {
-    --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    --font-editorial: "Cinzel", "Playfair Display", Georgia, serif;
+    --font-heading: "Playfair Display", Georgia, serif;
+    --font-editorial: "Playfair Display", Georgia, serif;
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+    --color-brand: #b58235;
+    --color-brand-hover: #9e6f2b;
+    --color-brand-light: #fdf8ee;
+    --color-canvas: #faf8f5;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1f241d;
-    background-color: #f8f7f4;
+    color: #1c1917;
+    background-color: #faf8f5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-heading {
+    font-family: var(--font-heading);
   }
 
   .font-editorial {
     font-family: var(--font-editorial);
   }
 
-  .font-heading {
-    font-family: var(--font-heading);
+  .font-sans {
+    font-family: var(--font-sans);
   }
 }
 
@@ -30,14 +38,14 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1efe9;
+  background: #f4f1ea;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c8c3b7;
+  background: #d8d0c2;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a39e92;
+  background: #b58235;
 }
 
 /* Animation utilities */

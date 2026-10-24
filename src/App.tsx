@@ -15,10 +15,13 @@ import { ContactPage } from './pages/ContactPage';
 import { AdminLoginPage } from './pages/AdminLoginPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { StoreSettings } from './types';
+import { clientStore } from './lib/client-store';
 
 export default function App() {
   const [location, setLocation] = useLocation();
-  const [settings, setSettings] = useState<StoreSettings | null>(null);
+  const [settings, setSettings] = useState<StoreSettings | null>(() => {
+    return clientStore.getStoreSettings();
+  });
 
   // Admin authentication state
   const [adminToken, setAdminToken] = useState<string | null>(() => {
@@ -35,9 +38,14 @@ export default function App() {
   // Fetch store settings on mount
   useEffect(() => {
     fetch('/api/settings')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('API non-200');
+        return res.json();
+      })
       .then((data) => setSettings(data))
-      .catch((err) => console.error('Error fetching settings:', err));
+      .catch(() => {
+        setSettings(clientStore.getStoreSettings());
+      });
   }, []);
 
   const handleAdminLoginSuccess = (token: string, user: any) => {
