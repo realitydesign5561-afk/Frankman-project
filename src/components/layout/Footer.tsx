@@ -22,7 +22,7 @@ export const Footer: React.FC<FooterProps> = ({
   facebookUrl = 'https://www.facebook.com/profile.php?id=61569349703465',
 }) => {
   return (
-    <footer className="bg-[#3B472C] text-[#EDE8DE] pt-12 sm:pt-16 pb-8 border-t border-[#4A5538]">
+    <footer className="bg-[#17191A] text-[#F2F3F1] pt-12 sm:pt-16 pb-8 border-t border-[#303536]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/15">
           {/* Col 1: Brand & Identity */}
@@ -30,10 +30,10 @@ export const Footer: React.FC<FooterProps> = ({
             <h3 className="font-editorial text-2xl sm:text-3xl text-white tracking-tight uppercase">
               Frankman
             </h3>
-            <p className="text-[#D8C98B] font-editorial text-xs tracking-widest uppercase">
+            <p className="text-[#AFC5CF] font-editorial text-xs tracking-widest uppercase">
               Furniture · Interiors · Living
             </p>
-            <p className="text-xs text-[#D9D6C9] leading-relaxed max-w-sm">
+            <p className="text-xs text-[#C8CDCC] leading-relaxed max-w-sm">
               Premium furniture and electronics retail destination in Umuahia, Abia State. Curated living room, dining sets, home theater, and household appliances designed to enrich modern Nigerian living.
             </p>
             <div className="pt-2 flex items-center gap-3">
@@ -63,11 +63,11 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
               Showroom Collections
             </h4>
-            <ul className="space-y-2 text-xs text-[#D9D6C9]">
+            <ul className="space-y-2 text-xs text-[#C8CDCC]">
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Living Room Sofas & Sectionals
                 </button>
@@ -75,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Dining Tables & Chairs
                 </button>
@@ -83,7 +83,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/furniture')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Contemporary Media Consoles
                 </button>
@@ -91,7 +91,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Smart 4K & OLED Televisions
                 </button>
@@ -99,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Inverter Refrigerators
                 </button>
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/shop/electronics')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Surround Sound Audio Systems
                 </button>
@@ -120,11 +120,11 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
               Customer Support
             </h4>
-            <ul className="space-y-2 text-xs text-[#D9D6C9]">
+            <ul className="space-y-2 text-xs text-[#C8CDCC]">
               <li>
                 <button
                   onClick={() => onNavigate('/about')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   About Frankman
                 </button>
@@ -132,7 +132,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/contact')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Contact Showroom
                 </button>
@@ -140,7 +140,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/contact')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Shipping & Delivery Policy
                 </button>
@@ -148,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/contact')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Returns & Refunds Guidelines
                 </button>
@@ -156,7 +156,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li>
                 <button
                   onClick={() => onNavigate('/admin')}
-                  className="hover:text-[#D8C98B] transition-colors"
+                  className="hover:text-[#AFC5CF] transition-colors"
                 >
                   Store Administration
                 </button>
@@ -169,25 +169,25 @@ export const Footer: React.FC<FooterProps> = ({
             <h4 className="font-serif text-sm font-semibold text-white tracking-wider uppercase">
               Showroom Location
             </h4>
-            <div className="space-y-2.5 text-xs text-[#D9D6C9]">
+            <div className="space-y-2.5 text-xs text-[#C8CDCC]">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#D8C98B] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[#AFC5CF] shrink-0 mt-0.5" />
                 <span>{businessAddress}</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#D8C98B] shrink-0" />
+                <Phone className="w-4 h-4 text-[#AFC5CF] shrink-0" />
                 <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-white">
                   {phone}
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#D8C98B] shrink-0" />
+                <Mail className="w-4 h-4 text-[#AFC5CF] shrink-0" />
                 <a href={`mailto:${email}`} className="hover:text-white">
                   {email}
                 </a>
               </div>
               <div className="flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-[#D8C98B] shrink-0 mt-0.5" />
+                <Clock className="w-4 h-4 text-[#AFC5CF] shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{businessHours}</span>
               </div>
             </div>
@@ -199,7 +199,7 @@ export const Footer: React.FC<FooterProps> = ({
           <p>
             &copy; {new Date().getFullYear()} Frankman Furniture & Electronics. All rights reserved. Umuahia, Abia State, Nigeria.
           </p>
-          <div className="flex items-center gap-4 text-[#D9D6C9]">
+          <div className="flex items-center gap-4 text-[#C8CDCC]">
             <span>Umuahia Furniture Retail</span>
             <span>·</span>
             <span>Home Electronics</span>

@@ -102,7 +102,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Hero Top / Headline Area */}
           <div className="relative z-10 text-center max-w-3xl mx-auto space-y-4 pt-4 sm:pt-8">
             <h1 className="font-heading font-extrabold text-4xl sm:text-6xl lg:text-7xl tracking-tight text-[#2E3725] leading-none uppercase">
-              URBAN<br />FURNISH
+              Transform<br />Space with<br /><span className="text-[#7D9AA8]">Sustainable Furniture</span>
             </h1>
 
             <p className="text-xs sm:text-sm text-stone-700 max-w-lg mx-auto font-medium leading-relaxed px-2">
@@ -115,7 +115,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onClick={() => onNavigate('/shop')}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#4A5538] hover:bg-[#3D472D] text-white rounded-full text-xs sm:text-sm font-bold tracking-wide shadow-md transition-all transform hover:scale-102"
               >
-                <span>Explore Showroom</span>
+                <span>Shop now</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -151,7 +151,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Right Feature Callout Tag */}
             <div className="bg-white/85 backdrop-blur-md border border-white/80 rounded-2xl px-4 py-2.5 text-right hidden sm:block shadow-sm">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#4A5538] block">
-                Trusted by Nigerian homes
+                18K+ happy homes
               </span>
               <span className="text-xs text-stone-700 font-semibold block">
                 100% Solid Kiln-Dried Hardwood

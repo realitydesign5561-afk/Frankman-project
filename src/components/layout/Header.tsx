@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F8F7F4]/95 backdrop-blur-md transition-all">
+    <header className="sticky top-0 z-40 bg-[#F3F4F3]/95 backdrop-blur-md transition-all">
       {/* Optional Top Announcement Bar */}
       {announcementActive && !announcementDismissed && (
         <div className="bg-[#4A5538] text-[#F3EFE6] px-4 py-1.5 text-[11px] sm:text-xs flex items-center justify-between text-center tracking-wide font-medium">
@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="bg-white/90 border border-stone-200/90 rounded-full px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 shadow-xs">
+        <div className="bg-white border border-stone-200 rounded-2xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4 shadow-sm">
           {/* Left: Nav Links (Desktop) */}
           <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-stone-600">
             {navLinks.slice(0, 3).map((link) => {
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => handleNav('/')}
             className="flex items-center gap-2 group cursor-pointer focus:outline-hidden"
           >
-            <div className="w-6 h-6 rounded-full bg-[#4A5538] text-white flex items-center justify-center font-bold text-[11px]">
+            <div className="w-6 h-6 rounded-full bg-[#17191A] text-white flex items-center justify-center font-bold text-[11px]">
               F
             </div>
             <span className="font-heading font-extrabold text-sm sm:text-base tracking-widest text-[#2E3725] uppercase group-hover:text-[#4A5538] transition-colors">
@@ -148,7 +148,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Shopping Bag Pill Button */}
             <button
               onClick={() => setDrawerOpen(true)}
-              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-[#4A5538] hover:bg-[#3E482F] text-white rounded-full text-xs font-bold tracking-wide shadow-xs transition-colors whitespace-nowrap shrink-0"
+              className="flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-[#17191A] hover:bg-[#34393B] text-white rounded-full text-xs font-bold tracking-wide shadow-xs transition-colors whitespace-nowrap shrink-0"
               aria-label={`Shopping bag with ${totalCount} items`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />

@@ -3,14 +3,14 @@
 @layer base {
   :root {
     --font-heading: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    --font-editorial: "Cinzel", "Playfair Display", Georgia, serif;
+    --font-editorial: "DM Serif Display", "Playfair Display", Georgia, serif;
     --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1f241d;
-    background-color: #f8f7f4;
+    color: #17191a;
+    background-color: #f3f4f3;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -54,4 +54,15 @@
 
 .animate-marquee:hover {
   animation-play-state: paused;
+}
+
+/* Modu-living inspired visual language: crisp white cards, ink typography, and soft blue furniture accents. */
+.reference-surface {
+  background: #ffffff;
+  border: 1px solid #e1e4e2;
+  box-shadow: 0 12px 30px rgba(23, 25, 26, 0.06);
+}
+
+.reference-pill {
+  border-radius: 999px;
 }
