@@ -348,11 +348,7 @@ async function createServer() {
     // responds. Return an empty response for HMR-only assets so the browser
     // never executes a client that can connect to an unavailable WebSocket.
     app.get('/@vite/client', (_req: Request, res: Response) => {
-      res.type('application/javascript').send(`
-        export const createHotContext = () => ({ accept() {}, dispose() {}, prune() {}, on() {}, send() {} });
-        export const updateStyle = () => {};
-        export const removeStyle = () => {};
-      `);
+      res.status(204).end();
     });
     app.get(['/__vite_ping', '/@react-refresh'], (_req: Request, res: Response) => {
       res.status(204).end();

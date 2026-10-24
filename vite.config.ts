@@ -12,7 +12,9 @@ export default defineConfig(() => {
         name: 'disable-preview-hmr-client',
         enforce: 'post',
         transformIndexHtml(html) {
-          return html.replace(/<script[^>]*src=["']\/@vite\/client["'][^>]*><\/script>/g, '');
+          return html
+            .replace(/<script[^>]+src=["'][^"']*\/@vite\/client[^"']*["'][^>]*><\/script>/gi, '')
+            .replace(/<script[^>]+src=["'][^"']*\/@react-refresh[^"']*["'][^>]*><\/script>/gi, '');
         },
       },
     ],
