@@ -347,7 +347,14 @@ async function createServer() {
     // Some hosted preview layers may inject /@vite/client after Express
     // responds. Return an empty response for HMR-only assets so the browser
     // never executes a client that can connect to an unavailable WebSocket.
-    app.get(['/__vite_ping', '/@vite/client', '/@react-refresh'], (_req: Request, res: Response) => {
+    app.get('/@vite/client', (_req: Request, res: Response) => {
+      res.type('application/javascript').send(`
+        export const createHotContext = () => ({ accept() {}, dispose() {}, prune() {}, on() {}, send() {} });
+        export const updateStyle = () => {};
+        export const removeStyle = () => {};
+      `);
+    });
+    app.get(['/__vite_ping', '/@react-refresh'], (_req: Request, res: Response) => {
       res.status(204).end();
     });
     app.use(vite.middlewares);
